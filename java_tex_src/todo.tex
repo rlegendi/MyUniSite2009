@@ -1,0 +1,88 @@
+\subsection*{Szerializáció}
+Implementálni kell a java.lang.Serializable interfészt. A megvalósítandó függvények:
+\begin{verbatim}
+private void writeObject(java.io.ObjectOutputStream out)
+    throws IOException
+private void readObject(java.io.ObjectInputStream in)
+    throws IOException, ClassNotFoundException;
+\end{verbatim}
+
+\subsubsection*{Példa}
+\begin{verbatim}
+package gyak3;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
+public class SerializableTest
+        implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
+    private String name;
+    private int value;
+
+    // no-arg konstruktor kell a szerializaciohoz!
+    private SerializableTest() {
+        this("", 0);
+    }
+
+    public SerializableTest(final String name, final int value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    private void writeObject(final ObjectOutputStream out)
+            throws IOException {
+        out.writeUTF(name);
+        out.writeInt(value);
+    }
+
+    private void readObject(final ObjectInputStream in)
+            throws IOException, ClassNotFoundException {
+        name = in.readUTF();
+        value = in.readInt();
+    }
+    
+    @Override
+    public String toString() {
+        return "[" + name + ":" + value + "]";
+    }
+    
+    private static final String FILE_NAME = "dump.dat";
+    
+    public static void main(final String[] args)
+            throws IOException, ClassNotFoundException {
+        if (args.length != 1) {
+            System.err.println("A programnak 1 parameter kell.");
+            System.exit(1);
+        }
+        
+        final String param = args[0].toLowerCase();
+        
+        if ("mentes".equals(param)) {
+            final FileOutputStream fos = new FileOutputStream(FILE_NAME);
+            final ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject( new SerializableTest("A", 10) );
+            oos.flush();
+            oos.close();
+            fos.close();
+        } else if ("betoltes".equals(param)) {
+            final FileInputStream fis = new FileInputStream(FILE_NAME);
+            final ObjectInputStream ois = new ObjectInputStream(fis);
+            
+            final SerializableTest loaded = (SerializableTest) ois.readObject();
+            System.out.println(loaded);
+            ois.close();
+            fis.close();
+        } else {
+            System.err.println("Hibas parameter: " + param);
+        }
+    }
+}
+\end{verbatim}
+
+- remove(int) vs. remove(Integer)

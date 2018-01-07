@@ -1,0 +1,450 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[latin2]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[magyar]{babel}
+\usepackage{url}
+\usepackage{indentfirst}
+\frenchspacing
+\author{legendi@inf.elte.hu}
+
+\title{4. Gyakorlat}
+\date{2010. március 1.}
+\begin{document}
+\maketitle
+
+\section*{Kiegészítés}
+
+% Regexp, patternek, special karakterek, levédés, etc.
+\begin{description}
+\item[String\#split()] Strint $\rightarrow$ String[], regexpek alapján (ld. FAQ).
+\begin{verbatim}
+for (String act : "a b c".split(" ")) {
+    System.out.println(act);
+}
+\end{verbatim}
+
+\item[Tömb értékû kifejezések]  Inicializálásnál elég a \{ $elem_1$, $elem_2$, ... \} forma. DE! Mindenhol máshol, ahol tömb típusú kifejezést szeretnénk leírni ($new$), a fordítási hibák kiszûrése miatt a típust is meg kell jelölnünk. Pl.:
+
+\begin{verbatim}
+public static int sum(int[] arr) { ... }
+
+public static void main(String[] args) {
+    int result = sum( new int[] {1, 2, 3} );
+}
+\end{verbatim}
+
+\item[Tömb segédosztály] java.util.Arrays, hasznos pl. a toString(), binarySearch(), fill(), etc.\\
+Részletesen: \url{http://java.sun.com/javase/6/docs/api/java/util/Arrays.html}
+
+% Legyetek tekintettel rám, python, etc.
+\item[Konvenciók] Igyekezzünk figyelni rá.
+\begin{verbatim}
+public class MyClass {
+    public static final int MAX = 10;
+    private boolean String someString;
+
+    public void myFunction() {
+        ...
+    }
+
+    public boolean isSomething() {
+        ...
+    }
+}
+\end{verbatim}
+
+\item[Overriding, overloading] Ha a szignatúra ugyanaz (függvény neve + paraméterek száma és típusa), akkor felüldefiniálás, egyébként túlterhelés. Más nem. Visszatérési értékre lehet specializálni, exception lista nem lényeges. Példák:
+
+\begin{verbatim}
+interface A {
+    int f(int a, int b);
+    int g() throws Exception;
+    A h();
+}
+
+class B implements A {
+    @Override
+    int f(int a, int b) { return 0; } // Feluldefinialas
+
+    void f(int a, int b) {}; // Hibas: visszateresi ertek nem kompatibilis
+    int f(int a) { return f(a, 0); }    // Tulterheles (parameterek szama)
+    int f(Integer a, Integer b) { ... } // Tulterheles (parameterek tipusa)
+
+    @Override
+    int g() { return 0; }     // OK: Exception lista nem szamit
+
+    @Override
+    B   h() { return null; }; // OK: Visszateresi ertekre specializal
+}
+\end{verbatim}
+\end{description}
+
+\section*{Enumok}
+Motiváció: "enum pattern" kiváltása:
+
+\begin{verbatim}
+public static final int OS_WINDOWS = 0;
+public static final int OS_LINUX   = 1;
+public static final int OS_BSD     = 2;
+public static final int OS_VMS     = 3;
+\end{verbatim}
+
+Problémák:
+
+\begin{description}
+\item[Típusbiztonság hiánya] Ez csak egy sima int, így mindenhol, ahol ilyen típusra számítunk, egy egyszerû intet is írhatunk véletlenül
+\item[Névtér hiánya] Csak a prefix-szel kerülhetjük el a névütközéseket
+\item[Törékenység] Új konstans beszúrása problémás, azonos értékek (copy-paste)
+\item[Érthetõség] Kiírásnál csak az értékeket látjuk, nem túl informatívak (milyen típus, mit reprezentál)
+\end{description}
+
+Java 5.0 óta, egyszerû definíció:
+
+\begin{verbatim}
+    // public, protected, private, static lehet csak
+    public static enum Os { Windows, Linux, BSD, VMS };
+
+    public static void main(final String[] args) {
+        System.out.println("Elements:");
+        for (final Os act : Os.values()) {
+            System.out.println(act.ordinal() + " ->" + act.name());
+        }
+
+        // String -> Os
+        final Os os = Os.valueOf(System.console().readLine());
+
+        switch (os) {
+        case Windows:
+            System.out.println("Windows");
+            break;
+
+        case Linux:
+        case BSD:
+            System.out.println("Unix");
+            break;
+
+        default:
+            System.out.println("Other");
+            break;
+        }
+    }
+\end{verbatim}
+
+Java csel: viselkedés, plusz adattag adható az enumokhoz. Pl.:
+
+\begin{verbatim}
+public enum Guitar {
+    Electronic (6),
+    Acoustic (5),
+    Bass (4); // elem definiciok vege
+    
+    // tulajdonsag leirasa (adattagok, fuggvenyek)
+
+    private final int strings;
+    
+    private Guitar(final int strings) {
+        this.strings = strings;
+    }
+    
+    public int getNumberOfStrings() {
+        return strings;
+    }
+}
+\end{verbatim}
+
+További okosság: constant-specific függvények:
+
+\begin{verbatim}
+public enum Operation {
+  PLUS   { double eval(double x, double y) { return x + y; } },
+  MINUS  { double eval(double x, double y) { return x - y; } },
+  TIMES  { double eval(double x, double y) { return x * y; } },
+  DIVIDE { double eval(double x, double y) { return x / y; } };
+
+  abstract double eval(double x, double y);
+}
+\end{verbatim}
+
+\emph{Igen} ritkán van rá szükség, de akkor hasznos, hogy van. További okosság: java.util.EnumSet,
+java.util.EnumMap.
+
+\bigskip
+\noindent
+\textbf{Részletesen:} \url{http://java.sun.com/docs/books/tutorial/java/javaOO/enum.html}
+
+\subsection*{Feladat}
+Készítsünk egy minimális BKV nyilvántartó programot! Az egyes jármûvekhez (Busz, HEV, Troli, Metro, Villamos) tároljuk el a különbözõ járatszámokat egy String tömbben, valamint egy logikai változóban tároljuk le, hogy az adott jármûvek Budapest közigazgatási határán kívülre is közlekednek-e (egyedül a HEV-ek ilyenek). Parancssori argumentumként kapunk egy járatszámot, majd írjuk ki, hogy a megadott jármû közlekedik-e Budapesten kívül!
+
+\bigskip
+Valósítsuk meg a feladatot enumokkal!
+
+\section*{Névtelen osztályok}
+
+Osztályt a példányosító kifejezéshez függesztett osztálytörzzsel kiterjesztjük:
+
+\begin{verbatim}
+Type type = new Type() { /* +definitions */ }
+\end{verbatim}
+
+Adattagokat, függvényeket vehetünk fel, implementálhatunk definiálhatunk felül. A kifejezés statikus típusa Type lesz, dinamikus típusa Type névtelen leszármazottja lesz. Konstruktort nem tartalmazhatnak (példányinicializátort azonban igen!). Pl.:
+
+\begin{verbatim}
+Alkalmazott alkalmazott = new Alkalmazott() {
+    // Ha adattagot veszunk fel, az normal esetben csak itt lathato
+    @Override
+    public String toString() {
+        return "(anon) " + super.toString();
+    }
+};
+
+Vector vector = new Vector() {{ add(1); add(2); }};
+\end{verbatim}
+
+\section*{GUI}
+
+Abstract Windowing Toolkit (nehézsúlyú) vagy Swing (pehelysúlyú komponensek). Elõbbi oprendszer szintû, utóbbi Javaban íródott, független az oprendszertõl. Egyéb ablakozó keretrendszer is használható (pl. SWT, Qt, etc.).
+
+Használható komponensek (beviteli, vezérlõ, megjelenítõ komponensek):
+\url{http://java.sun.com/docs/books/tutorial/ui/features/compWin.html}
+
+Ill. \emph{c:/Program Files/Java/jdk1.6/demo/jfc} alatt SwingSet2 és SwingSet3 példaalkalmazások.
+
+\subsection*{Példakód}
+\begin{verbatim}
+import java.awt.*;
+
+public class AWTTest {
+    Frame frame = new Frame("AWTTest");
+    Label label = new Label("Hello AWT!"); 
+    
+    public AWTTest() {
+        frame.add(label);
+        frame.setSize(200, 100);
+        frame.setLocation(300, 300);
+        frame.setVisible(true);
+    }
+    
+    public static void main(String[] args) {
+        AWTTest test = new AWTTest();
+    }
+}
+\end{verbatim}
+
+\subsection*{Életciklus}
+\begin{enumerate}
+\item Felület felépítése. Egyszerû példaalkalmazás
+\begin{verbatim}
+
+import java.awt.*;
+
+public class AWTTest {
+    Frame frame = new Frame("GUI Test");
+    TextField textField = new TextField("10");
+    Button button = new Button("Ok");
+    Label label = new Label("=");
+    
+    public AWTTest() {
+        frame.setLayout(new FlowLayout());
+        
+        frame.add(textField);
+        frame.add(button);
+        frame.add(label);
+        
+        frame.setVisible(true);
+        frame.setSize(200, 100);
+        frame.setLocation(300, 300);
+    }
+    
+    public static void main(String[] args) {
+        AWTTest test = new AWTTest();
+    }
+}
+\end{verbatim}
+
+\item Használata (eseményfigyelõk)
+\begin{verbatim}
+        button.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent ae) {
+                try {
+                    final int N = Integer.parseInt(textField.getText());
+                    int res = 1;
+                    for (int i=2; i<=N; ++i) res *= i;
+                    label.setText("= " + res);
+                } catch (final NumberFormatException e) {
+                    label.setText(e.getMessage());
+                }
+                
+            }
+        });
+\end{verbatim}
+
+\item Bezárása
+\begin{verbatim}
+frame.addWindowListener( new WindowAdapter() {
+    @Override
+    public void windowClosing(WindowEvent e) {
+        System.exit(0);
+    }
+});
+\end{verbatim}
+
+\end{enumerate}
+
+\subsection*{Adapterek, Listenerek}
+XXXListener interfész, ha nem kell az összes esemény, használható az XXXAdapter absztrakt osztály is (üres implementációkat tartalmaz). Pl. WindowListener, WindowAdapter. Hívási lánc alapján.
+
+Fontosabb Listenerek:
+\begin{itemize}
+\item ActionListener: menü, gombnyomás, Enter egy TextFielden
+\begin{verbatim}
+public void actionPerformed(ActionEvent e) { ... }s
+\end{verbatim}
+
+\item KeyListener: Billentyû leütése
+\begin{verbatim}
+public void keyTyped(KeyEvent e)    { ... }
+public void keyPressed(KeyEvent e)  { ... }
+public void keyReleased(KeyEvent e) { ... }
+\end{verbatim}
+
+\item MouseListener: Egérlenyomás (van MouseMotionListener, MouseWheelListener is)
+\begin{verbatim}
+public void mousePressed(MouseEvent e)  { ... }
+public void mouseReleased(MouseEvent e) { ... }
+public void mouseEntered(MouseEvent e)  { ... }
+public void mouseExited(MouseEvent e)   { ... }
+public void mouseClicked(MouseEvent e)  { ... }
+\end{verbatim}
+
+\item WindowListener: ablak eseményeinek kezelése
+\begin{verbatim}
+public void windowActivated(WindowEvent e)   { ... }
+public void windowClosed(WindowEvent e)      { ... }
+public void windowClosing(WindowEvent e)     { ... }
+public void windowDeactivated(WindowEvent e) { ... }
+public void windowDeiconified(WindowEvent e) { ... }
+public void windowIconified(WindowEvent e)   { ... }
+public void windowOpened(WindowEvent e)      { ... }
+\end{verbatim}
+
+\item Stb., lásd referenciát.
+\end{itemize}
+
+\subsection*{Elrendezési stratégiák}
+\textbf{Részletesen} \url{http://java.sun.com/docs/books/tutorial/uiswing/layout/visual.html}
+
+\begin{itemize}
+\item BorderLayout
+\item BoxLayout
+\item CardLayout
+\item FlowLayout
+\item GridBagLayout
+\item GridLayout
+\item GroupLayout/SpringLayout
+\end{itemize}
+
+\subsection*{Komponensek}
+
+Konténer komponensek (Container), legfelsõ szinten top-level containerek (applet, frame vagy dialog). Minden grafikus osztály közös õse: (J)Component. A java.awt.* csomagban.
+
+\begin{itemize}
+\item Panel (konténer)
+\item Label
+\item Button
+\item RadioButton
+\item TextArea, TextField
+\item etc.
+\end{itemize}
+
+\subsection*{Swing}
+Az osztályok nevének közös prefixe egy J betû. AWT-s eseménykezelés itt is megvan. A javax.swing.* csomagban (Java extended). További elõnyök:
+
+\begin{itemize}
+\item Független az oprendszertõl
+\item Szabad forma
+\item Átlátszó felületek
+\item Egyszerûen módosítható megjelenés
+\end{itemize}
+
+\subsection*{Menük}
+frame.setMenuBar(), MenuBar -> Menu, Menu -> Menu, MenuItem. Van szeparátor is.
+
+\begin{verbatim}
+JMenuBar menuBar = new JMenuBar();
+
+JMenu fileMenu = new JMenu("File");
+menuBar.add(fileMenu);
+
+JMenuItem exitMenu = new JMenuItem("Exit");
+fileMenu.add(exitMenu);
+exitMenu.addActionListener( ... )
+
+frame.setJMenuBar(menuBar);
+\end{verbatim}
+
+\subsection*{Üzenetablakok}
+JOptionPane.showXXXDialog(), pl.:
+
+\begin{verbatim}
+JOptionPane.showMessageDialog(null, // ki az ose, ha van, akkor modalis
+    "alert",                        // uzenet
+    "alert",                        // title
+    JOptionPane.ERROR_MESSAGE       // tipus
+);
+\end{verbatim}
+
+Részletesen: \url{http://java.sun.com/javase/6/docs/api/javax/swing/JOptionPane.html}
+
+\subsection*{Scrollozható komponensek}
+\begin{verbatim}
+frame.add( new JScrollPane(textArea) );
+\end{verbatim}
+
+\subsection*{Linkek}
+\begin{enumerate}
+\item \url{http://community.java.net/javadesktop}
+\item \url{http://java.sun.com/javase/technologies/desktop/articles.jsp}
+\item \url{http://java.sun.com/docs/books/tutorial/ui/index.html}
+\item \url{http://java.sun.com/docs/books/tutorial/uiswing/index.html}
+\end{enumerate}
+
+\section*{+/- Feladatok}
+A feladatokat a \url{legendi@inf.elte.hu} címre küldjétek, \textbf{szombat éjfélig}! A subject a következõképp nézzen ki:
+
+\begin{verbatim}
+csop<csoportszám>_gyak<gyakorlat száma>_<EHA-kód>_<a megoldott feladatok száma>
+\end{verbatim}
+
+Például:
+
+\begin{verbatim}
+csop1_gyak4_LERIAAT_1  (csak az elsõ feladattal)
+csop1_gyak4_LERIAAT_12 (mindkét feladattal)
+\end{verbatim}
+
+Mellékelni csak a Java forrásfájlokat mellékeljétek (semmiképp ne teljes Eclipse/NetBeans projecteket), esetleg rarolva, zipelve, és egy levelet küldjetek (több levél esetén az utolsó mellékleteit értékelem)! Ajánlott az elsõ feladatot NetBeans, a másikat Eclipse alatt készíteni. Szokni kell a környezetet, debuggolást. További fontos kritériumok:
+\begin{itemize}
+\item Ékezetes karaktereket \textbf{ne} használjatok! Fõleg azonosítók esetében ne! A Java ugyan ezt megengedi, ugyanakkor a különbözõ környezetekbe való konvertáláskor ($latin2 \leftrightarrow UTF-8 \leftrightarrow Cp1250$) összetörnek a karakterek! Az ilyen forrásokat fordítani, következésképp értékelni sem tudom.
+\end{itemize}
+
+\subsection*{1. Feladat}
+Készítsünk egy egyszerû szövegszerkesztõ alkalmazást! A programból a menübõl lehessen szöveges állományt megnyitni, elmenteni, valamint kilépni.
+
+\bigskip
+Ezen kívül az alábbi funkciók közül legalább hármat valósíts meg!
+
+\begin{enumerate}
+\item Használj tooltipeket, amikben HTML formázott szöveg van (\texttt{setToolTipText("<html> ...")})!
+\item Állíts be az alkalmazásnak egy tetszõleges ikont (\texttt{setIconImage(...)})!
+\item Készíts egy \textit{Help} menüt, amibe teszel egy egyszerû \texttt{About...} menüelemet. Ha erre rákattint a felhasználó, írja ki a program verziószámát, valamint a készítõ nevét (JOptionPane.)!
+\item Állíts be gyorsgombokat és mnemonicokat az egyes menüelemekhez (setAccelerator(...), setMnemonic(...))!
+\item Az alkalmazás egy \texttt{JFileChooser} segítségével válassza ki, hogy milyen fájlt szeretnél megnyitni!
+\item Használj egy JTabbedPane panelt, amivel egyszerre több állomány is megnyitható!
+\end{enumerate}
+
+\subsection*{2. Feladat}
+
+Készítsünk egy egyszerû, 3x3-as kirakós játékot! A fõ panel tartalmazzon 9 nyomógombot, amelyeken 1..8-ig számok szerepelnek, a kilencediken pedig egy "*" karakter. A számokat kezdetben véletlenszerûen helyezzük el (Math.random(), de az is elég, ha van egy beégetett összekevert kombináció). Ha egy számot tartalmazó nyomógombra kattintunk, akkor ha az szomszédos a * karakterrel, cseréljük fel a gombok szövegét! A cél, hogy a számokat sorfolytonosan kirakjuk, és a * karakter a jobb asó sarokban legyen. Ha ezt sikerült elérnie a felhasználónak, adjunk egy gratuláló üzenetet!
+
+\end{document}

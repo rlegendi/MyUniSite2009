@@ -1,0 +1,370 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[latin2]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[magyar]{babel}
+\usepackage{url}
+\usepackage{indentfirst}
+\frenchspacing
+\author{legendi@inf.elte.hu}
+
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{marvosym}
+
+\title{11. Gyakorlat}
+\date{2010. április 28.}
+\begin{document}
+\maketitle
+
+\section*{Kiegészítés}
+
+\begin{description}
+\item[StringBuilder vs. StringBuffer] \texttt{StringBuffer} szinkronizált, a \texttt{String\-Bu\-il\-der} nem, cserébe hatékonyabb (nincs szinkronizációs költség).
+\item[Szál indítása] Figyeljetek! \textbf{Nem} a \texttt{run()}, hanem a \texttt{start()} függvény használandó erre. Elõbbi hatására ugyanúgy szekvenciális programunk lesz.
+\item[Deprecated függvények a Thread osztályban] Erõsen deadlock-pro\-ne függ\-vények. Pl. egy szál \texttt{synchronized} blokkban van, és suspendelik, akkor nem fogja elereszteni az erõforrásokat, így más nem juthat hozzá - így könnyen deadlock alakulhat ki. Részletes magyarázat, megoldások, workaroundok itt találhatók: \url{http://java.sun.com/javase/6/docs/technotes/guides/concurrency/threadPrimitiveDeprecation.html}
+\end{description}
+
+\section*{Párhuzamosság 2.}
+
+\textbf{Feladat} Adott $v_1, v_2, ..., v_n$ vektorok, amelyen $n$ szál dolgozik. A program parancssori argumenetunkmént kap egy $e$ értéket. Keressük meg az elsõ olyan $j$ indexet, ahol ez a szám megtalálható, vagyis $v_i[j] = e, 1 \leq j \leq n$. \emph{Az egyszerûség kedvéért feltételezzük, hogy minden vektorelem egyedi, valamelyik vektorban megtalálható a keresett $e$ érték, és $n=2$.}
+
+\bigskip
+\emph{'Nuff said, let's rock!}
+
+\newpage
+\subsection*{1. kísérlet}
+Indítsunk két szálat. Közös változó a \texttt{found}, lokális változó a \texttt{v, i}.
+\begin{verbatim}
+found = false; i = 0;    // A
+while (!found) {         // B
+  found = v.get(i) == e; // C
+  i++;                   // D
+}     
+\end{verbatim}
+
+\textbf{FAIL}
+Tegyük fel, hogy az egyes szál elindult, az $i.$ elem épp $e$, $C$ végrehajtása után kapja meg a vezérlést a második szál. $A$ inicializáló utasításával \texttt{found} ismét hamis lesz \textbf{végtelen ciklus}.
+
+\subsection*{2. kísérlet}
+\emph{Ja, akkor nem a szálakban inicializálok.} Kerüljük el, hogy minden szál külö-külön is inicializálja a közös változót, tegyük meg ezt a szálak indítása elõtt!
+\begin{verbatim}
+found = false // Threadek inditasa elott
+
+i = 0;                   // A
+while (!found) {         // B
+  found = v.get(i) == e; // C
+  i++;                   // D
+}     
+\end{verbatim}
+
+\textbf{FAIL}
+Tegyük fel, hogy az egyes szál $C$-hez ér, végrehajtja, és épp megtalálja az adott értéket! Így \texttt{found} értéke igaz lesz. De! Ha közben a másik szál is $C$-nél volt, és ezután hajtódik végre, \texttt{found} értéke ismét hamis lesz $\rightarrow$ \textbf{végtelen ciklus}.
+
+\subsection*{3. kísérlet}
+\emph{Ouch, tényleg!} Csak akkor adjunk új értéket a \texttt{found} változónak, ha megtaláltuk az elemet.
+
+\begin{verbatim}
+i = 0;                      // A
+while (!found) {            // B
+  if (e == v[i]) b = true;  // C
+  i++;                      // D
+}
+\end{verbatim}
+
+\textbf{FAIL}
+Tegyük fel hogy az elsõ szál az elsõ elemében rögtön fel is fedezi az $e$ keresett értéket, és terminál (sérül a feltétlen pártatlan ütemezés elve, a szálak nem dolgoznak szinkronban). Ekkor a második szál soha nem terminál, $\rightarrow$ \textbf{végtelen várakozás}.
+
+\subsection*{4. kísérlet}
+\emph{Jó, akkor ütemezek én!} Vezessünk be egy \texttt{next} flaget, amely jelölje, hogy melyik szál futhat a \texttt{while} ciklusba való belépés után! A feltételhez kötött várakozást \texttt{await} szimbólummal jelölve, az elsõ szál definíciója:
+
+\begin{verbatim}
+i = 0;                            // A
+while (!found) {                  // B
+  await (1 == next) { next = 2; } // C
+  if (e == v[i]) b = true;        // D
+  i++;                            // E
+}
+\end{verbatim}
+
+valamint a második szál definíciója legyen a következõ:
+
+\begin{verbatim}
+j = 0;                            // A
+while (!found) {                  // B
+  await (2 == next) { next = 1; } // C
+  if (e == v[j]) b = true;        // D
+  j++;                            // E
+}
+\end{verbatim}
+
+\textbf{FAIL}
+Tegyük fel, hogy az elsõ szál eljut $D$ végrehajtásáig, majd ezután a második szál is eljut ugyaneddig (\texttt{next} értékét $2$-re állítva). Tegyük fel, hogy a második szál következõ eleme nem a keresett $e$ elem, így a $C$ ponton tovább várakozik. Ha eközben az elsõ szál megtalálja a keresett elemet, és terminál $\rightarrow$ \textbf{holtpont}.
+
+\subsection*{5. kísérlet}
+\emph{Ooooh! És ha terminálásnál is jelzek?!} A szálak terminálásánál is figyeljünk a \texttt{next} változóra! Az elsõ szál kódját módosítsuk a következõképp:
+
+\begin{verbatim}
+i = 0;                            // A
+while (!found) {                  // B
+  await (1 == next) { next = 2; } // C
+  if (e == v[i]) b = true;        // D
+  i++;                            // E
+}
+next = 2;                         // F
+\end{verbatim}
+
+a másodikét pedig az alábbi módon:
+
+\begin{verbatim}
+j = 0;                            // A
+while (!found) {                  // B
+  await (2 == next) { next = 1; } // C
+  if (e == v[j]) b = true;        // D
+  j++;                            // E
+}
+next = 1;                         // F
+\end{verbatim}
+
+\emph{Na ez már menni fog.} \Smiley
+
+\subsection*{Lásd még}
+\noindent
+Peterson-féle algoritmus kölcsönös kizárás megoldására, vektorértékadás atomicitása nélkül.
+
+\subsection*{Irodalom}
+\begin{enumerate}
+\item Brian Goetz et al.: Java Concurrency in Practice, Addison-Wesley Professional, May 19, 2006.
+\item Kozma, L. és Varga, L.: A szoftvertechnológia elméleti kérdései, ELTE Eötvös Kiadó, elsõ kiadás 2003, második kiadás 2006.
+\end{enumerate}
+
+\section*{Kliens-szerver architektúra} A szerveroldali kód:
+
+\begin{verbatim}
+// Raakaszkodas a portra
+ServerSocket ss = new ServerSocket( port );
+// Fuss, amig...
+while (true) {
+    // Egy bejovo kapcsolat elkapasa
+    Socket newSocket = ss.accept();
+
+    // Kapcsolat kezelese
+    // ...
+}
+\end{verbatim}
+
+\section*{Feladat}
+Készítsetek egy többszálú chat szerveralkalmazást, valamint egy klienst hozzá! Ha valaki küld egy üzenetet a szervernek, a szerveralkalmazás broadcastolja azt mindenki másnak is. A szerver a 2442 számú porton figyeljen, és ide csatlakozzanak a kliensek is!
+
+\bigskip
+A szerveralkalmazás minden egyes bejövõ kapcsolatot külön szállal kezeljen, a váza valahogy így nézzen ki:
+\begin{verbatim}
+ServerSocket socket = new ServerSocket(PORT);
+while (true) {
+    new Handler(socket.accept()).start();
+}
+\end{verbatim}
+
+A kliensek is legyenek többszálú alkalmazások: az egyik szál folyamatosan figyelje, hogy nem jön-e új üzenet a csatornán, miközben a másik szál írjon a csatornára, ha a felhasználó üzenetet írt a konzolra!
+
+\section*{Linkek}
+\textbf{Socket példa} \url{http://java.sun.com/developer/onlineTraining/Programming/BasicJava2/socket.html}
+
+\textbf{Java Tutorial, All About Socket fejezete}
+\url{http://java.sun.com/docs/books/tutorial/networking/sockets/index.html}
+
+\section*{Kapcsolat az adatbázissal}
+
+Kliens-szerver architektúra kiváló különbözõ adatbázisok eléréséhez: \emph{Java DataBase Connectivity}. Ez egy szabványos API, \texttt{java.sql.*} (\emph{Core API}), \texttt{javax.sql.*} (\emph{Extension}) csomagokban definiált osztályok (v.ö. ODBC).
+
+A szolgáltatások három csoportba sorolhatók:
+
+\begin{enumerate}
+\item Kapcsolódás a DB-hez
+\item Utasítások végrehajtása
+\item Eredmény lekérdezése
+\end{enumerate}
+
+A DB elérhetõ natívan is (kétrétegû modell), de az API három rétegû: egy absztrakt szint bevezetésével leválaszthatók a DB-specifikus dolgok, a kommunikáció a JDBC-n keresztül történik.
+
+\subsection*{Meghajtóprogramok}
+Minden kapcsolathoz szükséges a hozzá tartozó meghajtóprogram betöltése, amely kezeli a kapcsolatot, megoldja a hívások értelmezését és kiszolgálását (változó, hogy milyenek vannak, pl. Oracle fizetõs, MySQL ingyenes). Minden ilyen osztály a \texttt{Driver} interfészt implementálja. A futtatáshoz kell a megfelelõ meghajtó jar fájl is, pl.:
+
+\begin{verbatim}
+> java -cp .;lib/mysql.jar MyMySQLTestClass
+\end{verbatim}
+
+Nem kötelezõ kézzel betölteni, ha több DB-t is támogat a programunk, használhatjuk a \texttt{DriverManager} osztályt, amely megpróbálja betölteni az éppen aktuálisan használt DB-hez a megfelelõ meghajtóprogramot.
+
+A kapcsolat a DB-vel a \texttt{Connection} osztályon keresztül történik (egyszerre több kapcsolat is fenntartható, ez a DB beállításától függõ érték). Ezt egy URL-ben kell megadni, amely a következõ formátummal rendelkezik:
+
+\begin{verbatim}
+jdbc:alprotokoll:adatforrás_leírása
+\end{verbatim}
+
+Ahol:
+
+\begin{enumerate}
+\item maga a protokoll a \textbf{jdbc}
+\item az alprotokoll megegyezik a forgalmazó nevével
+\item az adatforrás leírása pedig tartalmazhatja a DB szerver címét (\emph{host:port}), az adattábla nevét, és tartalmazhatja a felhasználó nevét, jelszavát
+
+\end{enumerate}
+
+\textbf{Itt a gyakon egy egyszerû, minimális DB kezelõt, a Derby-t fogjuk használni (\emph{"Java DB is a free, fast, robust, full-featured pure Java database that fits in a 2.5MB JAR file, blah-blah-buzzword-blah-blah)"}.}\footnote{Letölthetõ innen: \url{http://developers.sun.com/javadb/}} Ehhez a következõ osztály dinamikus betöltésére van szükség (õ implementálja a \texttt{Driver} interfészt):
+
+\begin{verbatim}
+Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+\end{verbatim}
+
+A driverek specifikáció szerint osztálybetöltéskor egy statikus inicializátor blokkban bejegyzik magukat a \texttt{DriverManager} osztályban, így rendelkezésre állnak. A kapcsolat kiépítéséhez a következõ URL-t használhatjuk:
+
+\begin{verbatim}
+jdbc:derby:[//host:port//]<dbName>[properties]
+\end{verbatim}
+
+Ahol a \textbf{properties} tartalmazhatja a következõ információkat (ezeket ; karakterekkel választhatjuk el):
+
+\begin{itemize}
+\item \texttt{create=true} Megpróbálja létrehozni a DB-t, ha még nincs. Adattáblákat nem csinál.
+\item \texttt{user=userName} DB felhasználó neve.
+\item \texttt{password=userPassword} DB felhasználó jelszava.
+\item \texttt{shutdown=true} 
+\end{itemize}
+
+\begin{verbatim}
+Connection dbConnection = null;
+String strUrl = "jdbc:derby:DefaultAddressBook;user=dbuser;password=dbuserpwd";
+try {
+    dbConnection = DriverManager.getConnection(strUrl);
+} catch (SQLException e) {
+    e.printStackTrace();
+}
+\end{verbatim}
+
+Másik megoldás (kicsit biztonságosabb), ha property-kbe rakjuk a felhasználó nevét és jelszavát:
+
+\begin{verbatim}
+Connection dbConnection = null;
+String strUrl = "jdbc:derby:DefaultAddressBook";
+
+Properties props = new Properties();
+props.put("user", "dbuser");
+props.put("password", "dbuserpwd");
+try {
+    dbConnection = DriverManager.getConnection(strUrl, props);
+} catch(SQLException sqle) {
+    sqle.printStackTrace();
+}
+\end{verbatim}
+
+Hova kerul a DB? A \texttt{derby.system.home} system property által beállított érték határozza meg. Ezt vagy kódból lehet beállítani:
+
+\begin{verbatim}
+System.setProperty("derby.system.home", "/tmp");
+\end{verbatim}
+
+vagy futtatásnál lehet megadni:
+
+\begin{verbatim}
+> java -cp .;lib/mysql.jar -Dderby.system.home="/tmp" MyDerbyTestClass
+\end{verbatim}
+
+\textbf{Ezt a kapcsolatot is ugyanúgy le kell zárni, mint a streameket. És nem, nem a finalize() függvényben!!} A kapcsolatról rengeteg hasznos információ elkérhetõ a \texttt{getMetaData()} függvényhívással.
+
+\subsection*{Tranzakciókezelés}
+
+Tranzakciókezelés támogatott (csak olyan SQL utasítás hajtható végre, amelynek eredményét vagy véglegesítjük a DB-ben (\textbf{commit}), vagy visszavonunk minden változtatást (\textbf{rollback})). Ez alapból be van kapcsolva, aki kikapcsolja vagy tudja, hogy mit csinál, vagy vessen magára.
+
+\subsection*{JDBC - Java type mapping}
+
+TODO: táblázat ide
+
+\subsection*{Utasítások végrehajtása}
+
+Három lehetõség:
+
+\begin{enumerate}
+\item Statement: egyszerû SQL utasításokhoz. \textbf{Gyakon csak ez.}
+\item PreparedStatement: bemenõ paramétereket tartalmazó, elõfordított SQL utasításokhoz.
+\item CallableStatement: bemenõ, kimenõ paramétereket tartalmazó, tárolt eljárások hívásához.
+\end{enumerate}
+
+\subsubsection*{Statement végrehajtása}
+\begin{itemize}
+\item \texttt{execute(String)}: tetszõleges utasításhoz, pl. tábla létrehozása:
+\begin{verbatim}
+String strCreateTable = "CREATE TABLE inventory
+(
+   id INT PRIMARY KEY,
+   product VARCHAR(50),
+   quantity INT,
+   price DECIMAL
+)";
+
+statement = dbConnection.createStatement();
+statement.execute(strCreateTable);
+\end{verbatim}
+
+\item \texttt{executeQuery(String)}: lekérdezéshez, az eredmény egy \texttt{ResultSet} objektum lesz. %Mindig olvassátok végig az eredményt, mert addig nem záródik.
+Pl.:
+\begin{verbatim}
+ResultSet rs = statement.executeQuery("SELECT * FROM inventory");
+while (rs.next()) {
+    String p = rs.getString("product");
+    int q = rs.getInt("quantity");
+    double d = rs.getDouble("price");
+    ...
+}
+\end{verbatim}
+
+\item \texttt{executeUpdate(String)}: insert, update, delete, és adattediníciós utasításokhoz, az eredmény a módosított sorok száma (vagy 0). Pl.:
+
+\begin{verbatim}
+statement.executeUpdate("DELETE WHERE id=0");
+\end{verbatim}
+\end{itemize}
+
+\subsection*{Kötegelt végrehajtás}
+Van rá lehtõség, hogy parancsokat összefogjunk, és egyszerre küldjünk el a szervernek feldolgozásra, így sok kis adatmódosító utasítás gyorsabban lefuthat, mintha külön-külön futtatgatnánk le õket. Pl.:
+
+\begin{verbatim}
+statement.addBatch("Create TABLE ...");
+statement.addBatch("INSERT INTO ...");
+statement.addBatch("INSERT INTO ...");
+statement.addBatch("INSERT INTO ...");
+...
+statement.executeBatch();
+\end{verbatim}
+
+Az \texttt{executeBatch()} egy tömbbel tér vissza, hogy az egyes utasítások hány sort változtattak a DB-ben (itt $[0, 1, 1, 1, ...]$ lesz).
+
+\bigskip
+\noindent
+\textbf{Részletesen}
+\begin{itemize}
+\item \url{http://java.sun.com/docs/books/tutorial/jdbc/index.html}
+\item \url{http://www.jdbc-tutorial.com/}
+\item \url{http://java.sun.com/developer/technicalArticles/J2SE/Desktop/javadb/}
+\end{itemize}
+
+\subsection*{Feladat}
+
+Készítsetek egy egyszerû adatbázis kezelõ grafikus felületet, amely \aref{fig:derby_test}. ábrán látható! A program tartalmazzon egy \texttt{JTextField} komponenst, ahol a lekérdezést lehet megadni, egy \texttt{JTextArea} komponenst, ahol megjeleníti az eredményt, valamint egy gombot, amivel le lehet futtatni a megadott SQL utasítást.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{11}
+\caption{A program grafikus szerkezete}
+\label{fig:derby_test}
+\end{figure}
+
+\begin{enumerate}
+\item A megvalósításhoz használjátok a következõ címen elérhetõ \texttt{derby.jar} fájlt:
+\url{http://people.inf.elte.hu/legendi/java/res/derby.jar}
+\item A program az aktuális könyvtár alá, egy \texttt{derby} könyvtárba tegye az adatbázis fájlokat!
+\item Egy statikus inicializáló blokkban próbáljuk meg betölteni a szükséges meghajtó osztályt! Ha ez nem megy, termináljon a program.
+\item Az utasítás végrehajtásához használjátok az \texttt{execute(String sql)} függvényt!
+\item Az eredmény objektum bejárásánál elég, ha az elemeket a \texttt{getString(int)} metódussal írjátok ki. Ehhez tudnotok kell, hogy hány oszlop található az eredményben, ezt a \texttt{ResultSet\#getMetaData()} függvényen keresztül elért objektumtól tudjátok lekérdezni.
+\end{enumerate}
+
+\end{document}

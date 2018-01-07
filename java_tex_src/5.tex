@@ -1,0 +1,327 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[latin2]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[magyar]{babel}
+\usepackage{url}
+\usepackage{indentfirst}
+\frenchspacing
+\author{legendi@inf.elte.hu}
+
+\usepackage{graphicx}
+
+\title{5. Gyakorlat}
+\date{2010. március 9.}
+\begin{document}
+\maketitle
+
+\section*{Assertek}
+
+Motiváció: \url{http://geekandpoke.typepad.com/geekandpoke/2010/02/simply-explained-edge-cases.html}
+
+\bigskip
+Általános forma:
+\begin{verbatim}
+assert <boolean>;
+assert <boolean> : <non-void>;
+\end{verbatim}
+
+Az elsõ paraméter logikai feltétel, ha hamis, akkor AssertionError, a második paraméter lesz az üzenete.
+Futtatási idejû ellenõrzések, feltételezések biztosítására, azonban könnyen ki-, és bekapcsolhatók (esetenként erõforrásigényes a kiértékelés, pl. minimum elem meghatározása egy komplex, rendezetlen adatszerkezetben). Fejlesztés során rendkívül hasznosak.
+
+\bigskip
+Mikor \textbf{ne} használjuk?
+\begin{itemize}
+\item publikus függvények argumentumellenõrzésére (NullPointerException, IllegalArgumentException, etc.), ezeknek akkor is teljesülniük kell, mikor az asserteket kikapcsolják (specification, contract)
+\item Mellékhatással ne járjon! Pl.:
+\begin{verbatim}
+boolean b = false;
+assert b = true; // Broken!
+\end{verbatim}
+\end{itemize}
+
+Mikor használjuk?
+
+\begin{itemize}
+\item Beksõ invariánsok: ha commentbe állítunk invariáns tulajdonságot, pl.:
+\begin{verbatim}
+    if (i % 3 == 0) {
+        ...
+    } else if (i % 3 == 1) {
+        ...
+    } else { // i % 3 == 2
+        ...
+    }
+\end{verbatim}
+
+Ebbõl:
+
+\begin{verbatim}
+    if (i % 3 == 0) {
+        ...
+    } else if (i % 3 == 1) {
+        ...
+    } else {
+        assert i % 3 == 2 : "Hiba: " + i;
+        ...
+    }
+\end{verbatim}
+
+\item Control flow invariant: feltételezhetõen elérhetetlen kódrészletekhez, pl.:
+\begin{verbatim}
+try {
+    ...
+} catch (Exception e) {
+    // Never happens
+}
+\end{verbatim}
+
+Helyett:
+\begin{verbatim}
+try {
+    ...
+} catch (Exception e) {
+    assert false : "Never happens";
+}
+\end{verbatim}
+
+
+\item Elõ-, utófeltételek, invariánsok. Nem egy teljes design-by-contract eszköz, de segít informatívan, és ehhez hasonló módszerrel kódolni. \textbf{Megjegyzés:} \texttt{public} függvények paraméterének ellenõrzésére \textbf{ne}. Elõfeltétel: paraméterek ellenõrzése, utófeltétel: return elõtt. Invariáns: minden publikus metódus elõtt-után ellenõrizhetõ (private esetben az objektum épp lehet köztes állapotban). Bonyolultabb feltétel kiemelhetõ private függvénybe.
+\end{itemize}
+
+Alapból kikapcsolt, bekapcsolás:
+\begin{verbatim}
+> java -ea ...
+\end{verbatim}
+
+\bigskip
+\textbf{Részletesen:} \url{http://java.sun.com/j2se/1.4.2/docs/guide/lang/assert.html}
+
+\section*{Generic - Bevezetés}
+\emph{(Csak a collectionökhöz, minimális szinten)} Típussal paraméterezhetõség. Type erasure: csak fordítási idõben ismert a típusinformáció, utána automatikusan törli a fordító, bájtkódból nem szerezhetõ vissza - nem C++ template-ek, nem generálódik fordítási idõben új típus, nincs template metaprogramozás.
+
+Nem kötelezõ velük foglalkozni (@SupressWarnings("unchecked")), de rendkívül hasznosak, fordítási idõben tudunk potenciális hibalehetõségeket kiszúrni - persze ez is a programozón múlik. Kényelmes, típusbiztos.
+
+Collectionöknél aktívan használjuk õket:
+
+\begin{verbatim}
+Vector<String> s = new Vector<String>();
+\end{verbatim}
+
+Az elõnyük:
+
+\begin{verbatim}
+// Pre-1.5 era:
+Vector v = new Vector();
+
+v.add( new Integer(1) );
+v.add( new Integer(2) );
+
+for (int i=0, n=v.size(); i<n; ++i) {
+    Integer act = (Integer) v.get(i);
+    System.out.println(act);
+}
+
+// Uj:
+Vector<Integer> v = new Vector<Integer>();
+v.add(1);
+v.add(2);
+
+for (int i=0, n=v.size(); i<n; ++i) {
+    Integer act = v.get(i);
+    System.out.println(act);
+}
+\end{verbatim}
+
+Autoboxing-unboxing: csak objektum referenciákat tárolhatnak, ezért primitív típusok helyett wrapper osztályokat kell használnunk - azonban ezek ilyen esetekben automatikusan konvertálódnak (ld. fenti példa). \textbf{Amire figyelni kell:} teljesítmény, == operátor, null unboxing NPE-vel jár.
+
+\section*{Gyûjtemény keretrendszer}
+Collections Framework, java.util.* csomag, objektumok memóriában tárolására, lekérdezése, manipulálása (c++ STL). Általános célú adatszerkezetek:
+
+\begin{itemize}
+\item Collection
+	\begin{itemize}
+	\item List
+    \item Deque
+    \item Set
+        \begin{itemize}
+        \item SortedSet
+        \end{itemize}
+    \end{itemize}
+\item Map
+    \begin{itemize}
+    \item SortedMap
+	\end{itemize}
+\end{itemize}
+
+Nem megvalósított mûvelet UnsupportedOperationException-t dob. Copy konstruktorok vannak (egyik a másikra konvertálható). Mûveletek 3 csoportja:
+
+\begin{enumerate}
+\item Alapvetõ mûveletek: size(), isEmpty(), contains(), add(), remove()
+\item Elemek együttes kezelése: addAll(), containsAll(), removeAll(), clear(), retainAll()
+\item Tömbbé konvertálás - gány:
+\begin{verbatim}
+A[] arr = (A[]) sitcom.toArray(new A[sitcom.size()]);
+
+// Kicsit egyszerubb, bar kevesbe hatekony, biztonsagos:
+A[] arr = (A[]) sitcom.toArray();
+\end{verbatim}
+\end{enumerate}
+
+Iterátorokkal rendelkeznek, használhatók for-each-ben. Példa:
+\begin{verbatim}
+package gyak5;
+
+import java.util.Vector;
+
+public class VectorTest {
+    public static void main(String[] args) {
+        Vector<Double> vector = new Vector<Double>();
+        
+        for (int i=0; i<5; ++i) {
+            vector.add( Math.random() );
+        }
+        
+        System.out.println(vector);
+    }
+}
+\end{verbatim}
+
+\subsection*{Halmaz}
+Duplikált elemeket nem tartalmazhat, kell hozzá az objektumon az equals() és hashCode() (hashelõ implementációk, nem számít a sorrend, 2 halmaz egyenlõ, ha ugyanazokat az elemeket tartalmazzák). HashSet, TreeSet: elõbbi hatékonyabb, utóbbi rendezett.
+
+\subsubsection*{Feladat}
+Készíts egy programot, amely megszámolja a parancssori argumentumokra, hogy azokban hány különbözõ betû van! A megvalósításhoz használj halmazt (Set<Character>, String\#toCharArray())! Példa output:
+
+\begin{verbatim}
+> java gyak5.CharCounter asdfasd jkl
+asdfasd -> 4
+jkl -> 3
+\end{verbatim}
+
+\subsection*{Lista}
+Elemek pozíció szerinti elérése, iteráció, részlista kezelés. A remove() az elem 1. elõfordulását távolítja el, az add(), addAll() a lista végéhez fûz hozzá. Két lista egyenlõ, ha ugyanazokat az elemeket tartalmazzák, ugyanabban a sorrendben. A lista iterátora a ListIterator, 2 irányban is bejárható: hasNext(), next(), ill. hasPrevious(), previous(). Részlista: balról zárt, jobbról nyílt intervallumot kell megadni. Két implementáció: ArrayList, LinkedList, elõbbi a pozicionális mûveleteknek kedvez, utóbbi akkor, ha a lista elejére kell sokat beszúrni, és iteráció közben törölni (általában az ArrayList használata a célravezetõbb).
+
+\subsubsection*{Feladat}
+Készíts egy programot, amely a parancssori argumentumaként megkapott szavakat lexikografikusan lerendezi, majd kiírja a képernyõre. A megvalósításhoz használj egy tetszõleges lista adatszerkezetet (ArrayList, LinkedList, Stack, Vector), valamint a java.util.Collections\#sort() függvényt! Példa output:
+
+\begin{verbatim}
+> java gyak5.StringSorter ad df vc y a
+[a, ad, df, vc, y]
+\end{verbatim}
+
+\subsection*{Leképezés}
+Kulcs-érték párokhoz: HashMap, Hashtable (minimális különbség: utóbbi szinkronizált, megengedi a null értékeket is). Minden kulcshoz egy érték tartozhat. Nem iterálható, azonban lekérdezhetõ a keySet(), entrySet(), ami már igen.
+
+\subsubsection*{Feladat}
+Készíts egy programot, amely megszámolja egy fájlból az egyes szavak elõfordulásainak számát! A program a fájl elérési útját argumentumként kapja. A megvalósításhoz használj egy String $\rightarrow$ Integer leképezést (HashMap<String, Integer>)! Példa output:
+
+\begin{verbatim}
+> cat test.txt
+a a a b b c d
+> java gyak5.WordCounter test.txt
+{d=1, b=2, c=1, a=3}
+\end{verbatim}
+
+\subsection*{Rendezés}
+Beépített típusoknak értelemszerû a relációja - felhasználói típusokat a programozó dönti el. Comparable interfész $\rightarrow$ compareTo() metódusa, melynek eredménye int típusú:
+
+\begin{itemize}
+\item 0, ha a két objektum egyenlõ
+\item $<0$, ha az adott objektum kisebb a paraméternél
+\item $>0$, ha fordítva
+\end{itemize}
+
+Implementálás:
+
+\begin{verbatim}
+class Foo implements Comparable<Foo> {
+    ...
+    public int compareTo(final Foo foo) {
+        return ...;
+    }
+}
+\end{verbatim}
+
+Ha ennek használatára nincs lehetõség, marad egy saját Comparator készítése (pl. egyazon objektumot több szempont szerint kell rendezni).
+
+\subsubsection*{Feladat}
+Készítsetek egy Date osztályt, amely tartalmazza az év, hónap, nap adatokat (mind számok). Implementáljátok vele a Comparable<Date> interfészt, és ennek megfelelõen valósítsátok meg a compareTo() függvényt! Hozzatok létre kódból 3 objektumot, és tároljátok el ezeket egy tetszõleges lista adatszerkezetbe. Ezt aztán rendezzétek le kronológiai sorrend szerint a Collections\#sort() függvénnyel, és írjátok ki az eredményt!
+
+\section*{Kényelmi lehetõségek}
+\begin{enumerate}
+\item java.util.Arrays\#asList(): tömbbõl listát csinál
+\item java.util.Collections
+\begin{itemize}
+\item nCopies(int n, Object o): két paraméter, amely $n$-szer tartalmazza $o$-t.
+\item Egyelemû, üres, módosíthatatlan, szinkronizált listák
+\item Algoritmusok:
+\begin{itemize}
+\item Rendezés, összefésüléses módszerrel ($n log(n)$, rendezett listát már nem rendez, szemben a quick sorttal): sort()
+\item Összekeveerés:  shuffle()
+\item Megfordítás, feltöltés, másolás: reverse(), fill(), copy()
+\item Bináris keresés: $(-i-1)$-et ad vissza, ahol $i$ az elsõ olyan elem indexe, amely nagyobb az elemnél.
+\item Minimum, maximum elem: min(), max()
+\end{itemize}
+\end{itemize} 
+\end{enumerate}
+
+\textbf{Megjegyzések:}
+\begin{itemize}
+\item $capacity() != size()$
+\item Az interfész mûveleteken kívül rengeteg egyéb hasznos funkcionalitás, érdemes a javadocot olvasgatni
+\item Saját implementációk: hajrá! A Collections Framework absztrakt osztályokat biztosít (AbstractList, AbstractSet, etc.), lehet származtatni.
+\item További adatszerkezetek: Dequeue, Stack, BitSet, Vector, etc.
+\item Felhasználás: paraméterként, változódeklarációként célszerû minél általánosabb interfészt megadni (a collections framework elõnye a rugalmassága):
+\begin{verbatim}
+Vector v1 = new Vector();  // vektorkent kezeles
+List   v2 = new Vector();  // listakent kezeles
+\end{verbatim}
+\end{itemize}
+
+\textbf{Részletesen:} http://java.sun.com/javase/6/docs/api/java/util/package-summary.html
+
+\newpage
+\section*{+/- Feladat}
+A feladatokat a \url{legendi@inf.elte.hu} címre küldjétek, \textbf{szombat éjfélig}! A subject a következõképp nézzen ki:
+
+\begin{verbatim}
+csop<csoportszám>_gyak<gyakorlat száma>_<EHA-kód>_<a megoldott feladatok száma>
+\end{verbatim}
+
+Például:
+
+\begin{verbatim}
+csop1_gyak5_LERIAAT_1
+\end{verbatim}
+
+Mellékelni csak a Java forrásfájlokat mellékeljétek (semmiképp ne teljes Eclipse/NetBeans projecteket), esetleg rarolva, zipelve, és egy levelet küldjetek (több levél esetén az utolsó mellékleteit értékelem)! További fontos kritériumok:
+\begin{itemize}
+\item A konvenciókra figyeljetek plz!
+\item Ékezetes karaktereket \textbf{ne} használjatok! Fõleg azonosítók esetében ne! A Java ugyan ezt megengedi, ugyanakkor a különbözõ környezetekbe való konvertáláskor ($latin2 \leftrightarrow UTF-8 \leftrightarrow Cp1250$) összetörnek a karakterek! Az ilyen forrásokat fordítani, következésképp értékelni sem tudom.
+\end{itemize}
+
+\subsection*{1. Feladat}
+Készítsünk egy sorozat rendezõ alkalmazást! A program inputja a következõ formátumú fájl legyen:
+
+\begin{verbatim}
+# evad : epizod : cim
+12:7:Super Fun Time
+12:4:Canada on Strike
+8:13:Cartman's Incredible Gift
+10:8:Make Love, Not Warcraft
+\end{verbatim}
+
+A \# karakterrel kezdõdõ sorokat hagyjuk figyelmen kívül (String\#trim())! Készítsünk egy Sitcom osztályt a megfelelõ adattagokkal (season, episode, title), és implementáljuk vele a Comparable<Sitcom> interfészt! A compareTo() mûködjön úgy, hogy elsõdleges szempont szerint az évad, azon belül pedig az epizódszám alapján rendezzen! Az adatokat tároljuk egy Vector<Sitcom> adatszerkezetben. A saját osztály helyes mûködéséhez implementáljuk az equals(), toString(), hashCode() függvényeket is!
+
+
+\subsection*{2. Feladat}
+Egészítsük ki az elõzõ programot úgy, hogy dobjon fel egy ablakot, amelyben egyedül egy JList objektum legyen. Ez a konstruktorában kapja meg az elemek rendezett listáját, hogy megjeleníthesse azokat! A program képernyõképe \aref{screenshot} ábrán látható.
+
+\begin{figure}[ht]
+\centering
+\includegraphics{5_sp}
+\caption{Képernyõkép}
+\label{screenshot}
+\end{figure}
+
+\end{document}

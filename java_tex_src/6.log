@@ -1,0 +1,208 @@
+This is pdfTeX, Version 3.1415926-1.40.9 (MiKTeX 2.7) (preloaded format=latex 2010.1.8)  16 MAR 2010 07:54
+entering extended mode
+**6.tex
+(6.tex
+LaTeX2e <2005/12/01>
+Babel <v3.8l> and hyphenation patterns for english, dumylang, nohyphenation, ge
+rman, ngerman, german-x-2008-06-18, ngerman-x-2008-06-18, french, hungarian, lo
+aded.
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\article.cls"
+Document Class: article 2005/09/16 v1.4f Standard LaTeX document class
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\size11.clo"
+File: size11.clo 2005/09/16 v1.4f Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\inputenc.sty"
+Package: inputenc 2006/05/05 v1.1b Input encoding file
+\inpenc@prehook=\toks14
+\inpenc@posthook=\toks15
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\latin2.def"
+File: latin2.def 2006/05/05 v1.1b Input encoding file
+))
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\fontenc.sty"
+Package: fontenc 2005/09/27 v1.99g Standard LaTeX package
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\t1enc.def"
+File: t1enc.def 2005/09/27 v1.99g Standard LaTeX file
+LaTeX Font Info:    Redeclaring font encoding T1 on input line 43.
+))
+("C:\Program Files\MiKTeX 2.7\tex\generic\babel\babel.sty"
+Package: babel 2008/07/06 v3.8l The Babel package
+
+*************************************
+* Local config file bblopts.cfg used
+*
+("C:\Program Files\MiKTeX 2.7\tex\latex\00miktex\bblopts.cfg"
+File: bblopts.cfg 2006/07/31 v1.0 MiKTeX 'babel' configuration
+)
+("C:\Program Files\MiKTeX 2.7\tex\generic\babel\magyar.ldf"
+Language: magyar 2005/03/30 v1.4j Magyar support from the babel system
+
+("C:\Program Files\MiKTeX 2.7\tex\generic\babel\babel.def"
+File: babel.def 2008/07/06 v3.8l Babel common definitions
+\babel@savecnt=\count87
+\U@D=\dimen103
+)
+Package babel Info: Making ` an active character on input line 597.
+))
+("C:\Program Files\MiKTeX 2.7\tex\latex\ltxmisc\url.sty"
+\Urlmuskip=\muskip10
+Package: url 2006/04/12  ver 3.3  Verb mode for urls, etc.
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\tools\indentfirst.sty"
+Package: indentfirst 1995/11/23 v1.03 Indent first paragraph (DPC)
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\graphics\graphicx.sty"
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\graphics\keyval.sty"
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks16
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\graphics\graphics.sty"
+Package: graphics 2006/02/20 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\graphics\trig.sty"
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\00miktex\graphics.cfg"
+File: graphics.cfg 2007/01/18 v1.5 graphics configuration of teTeX/TeXLive
+)
+Package graphics Info: Driver file: dvips.def on input line 90.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\graphics\dvips.def"
+File: dvips.def 1999/02/16 v3.0i Driver-dependant file (DPC,SPQR)
+))
+\Gin@req@height=\dimen104
+\Gin@req@width=\dimen105
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\amsfonts\amssymb.sty"
+Package: amssymb 2002/01/22 v2.2d
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\amsfonts\amsfonts.sty"
+Package: amsfonts 2001/10/25 v2.2f
+\@emptytoks=\toks17
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 132.
+)) (6.aux)
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Try loading font information for U+msa on input line 16.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\amsfonts\umsa.fd"
+File: umsa.fd 2002/01/19 v2.2g AMS font definitions
+)
+LaTeX Font Info:    Try loading font information for U+msb on input line 16.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\amsfonts\umsb.fd"
+File: umsb.fd 2002/01/19 v2.2g AMS font definitions
+)
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 21.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\omscmr.fd"
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 21.
+LaTeX Font Info:    Try loading font information for T1+cmtt on input line 22.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\t1cmtt.fd"
+File: t1cmtt.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+) [1
+
+]
+Overfull \hbox (92.6874pt too wide) in paragraph at lines 81--82
+[][]\T1/cmr/bx/n/10.95 Részletesen: $\T1/cmtt/m/n/10.95 http : / / java . sun .
+ com / javase / 6 / docs / api / java / io / RandomAccessFile .
+ []
+
+
+Overfull \hbox (52.14429pt too wide) in paragraph at lines 100--100
+ []    \T1/cmtt/m/n/10.95 private class OkButtonActionListener implements Actio
+nListener {[] 
+ []
+
+[2]
+Overfull \hbox (69.1194pt too wide) in paragraph at lines 100--100
+ []        \T1/cmtt/m/n/10.95 OkButtonActionListener listener = new OkButtonAct
+ionListener();[] 
+ []
+
+
+Overfull \hbox (35.16917pt too wide) in paragraph at lines 128--128
+ []        \T1/cmtt/m/n/10.95 } else if (CANCEL_COMMAND.equals(e.getActionComma
+nd())) {[] 
+ []
+
+[3] [4]
+Overfull \hbox (23.85243pt too wide) in paragraph at lines 182--182
+ []\T1/cmtt/m/n/10.95 @SuppressWarnings({ "deprecation", "unchecked" }) // ld. 
+kesobb[] 
+ []
+
+[5]
+Overfull \hbox (45.39885pt too wide) in paragraph at lines 262--263
+[][]\T1/cmr/m/n/10.95 nem le-het szü-l®-in-ter-fé-sze, de imp-li-cit mó-don ki-
+ter-jeszti a \T1/cmtt/m/n/10.95 java.lang.Annotation
+ []
+
+[6]
+Overfull \hbox (94.87532pt too wide) in paragraph at lines 275--276
+[][]\T1/cmr/m/n/10.95 Annotáció hasz-nál-ha-tó-sá-gá-nak sza-bá-lyo-zása, \T1/c
+mtt/m/n/10.95 java.lang.annotation.ElementType
+ []
+
+
+Overfull \hbox (6.552pt too wide) in paragraph at lines 275--276
+\T1/cmr/m/n/10.95 hasz-ná-la-tá-val: AN-NO-TA-TION_TYPE, CON-STRUC-TOR, FIELD, 
+LO-
+ []
+
+[7] [8]
+Overfull \hbox (29.25551pt too wide) in paragraph at lines 377--378
+[][]\T1/cmr/m/n/10.95 Probléma: func() csak List<Super>-rel hív-ható meg, List<
+Sub1>, List<Sub2>
+ []
+
+[9] [10]
+Overfull \hbox (14.91188pt too wide) in paragraph at lines 443--444
+[][]\T1/cmr/bx/n/10.95 Részletesen: $\T1/cmtt/m/n/10.95 http : / / java . sun .
+ com / j2se / 1 . 5 / pdf / generics-[]tutorial .
+ []
+
+File: 6.eps Graphic file (type eps)
+<6.eps> [11] (6.aux) ) 
+Here is how much of TeX's memory you used:
+ 1589 strings out of 95281
+ 17095 string characters out of 1182564
+ 68715 words of memory out of 1500000
+ 4801 multiletter control sequences out of 110000
+ 16248 words of font info for 47 fonts, out of 3000000 for 5000
+ 14 hyphenation exceptions out of 8191
+ 25i,6n,24p,554b,299s stack positions out of 5000i,500n,10000p,200000b,50000s
+
+Output written on 6.dvi (11 pages, 21484 bytes).

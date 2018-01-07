@@ -1,0 +1,175 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[latin2]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[magyar]{babel}
+\usepackage{url}
+\usepackage{indentfirst}
+\frenchspacing
+\author{legendi@inf.elte.hu}
+
+\usepackage{graphicx}
+\usepackage{amssymb}
+
+\title{7. Gyakorlat}
+\date{2010. március 23.}
+\begin{document}
+\maketitle
+
+\section*{Kiegészítés}
+
+\begin{description}
+\item[FileNotFoundException] Ha nem tudod, hol keresi az IDE, vagy a Java a megadott file-t, alkalmazhatod ezt a cselt:
+
+\begin{verbatim}
+File file = new File("test.txt");
+System.out.println( file.getAbsolutePath() );
+\end{verbatim}
+
+\item[JOptionPane] Ha super != null, akkor modális, pl.:
+\begin{verbatim}
+JFrame frame = ...;
+...
+JOptionPane.showMessageDialog( frame, "Modalis uzenet");
+\end{verbatim}
+
+\item[MVC] Model-View-Controller. Egyes GUI komponensek nem direkt módon tárolják az adatokat (többféle reprezentáció), ilyenkor modelleket kell használni (pl. JProgressBar, JNumberSpinner, JTable, stb.). Példa:
+
+\begin{verbatim}
+int val = progressBar.getModel().getValue();
+progressBar.getModel().setValue(++val);
+\end{verbatim}
+
+\item[Linux] OpenJDK van rajta - használjatok Sun JVM-et, ha lehet.
+
+\item[static] Osztály szintû, pl. adott osztály példányainak számolása:
+\begin{verbatim}
+class Foo {
+    static int ctr = 0;
+    final int idx;
+    
+    public Foo() {
+        ...
+        idx = ctr++;
+    }
+}
+\end{verbatim}
+
+\item[BorderLayout] Használatra példa:
+\begin{verbatim}
+JPanle panel = new JPanel( new BorderLayou() );
+
+panel.add( new JLabel("North"),  BorderLayout.NORTH  );
+panel.add( new JLabel("South"),  BorderLayout.SOUTH  );
+panel.add( new JLabel("East"),   BorderLayout.EAST   );
+panel.add( new JLabel("West"),   BorderLayout.WEST   );
+panel.add( new JLabel("Center"), BorderLayout.CENTER );
+\end{verbatim}
+
+\item[CardLayout] Példa:
+
+\begin{verbatim}
+final static String APANEL = "Panel 1";
+final static String BPANEL = "Panel 2";
+
+JPanel card1 = new JPanel();
+JPanel card2 = new JPanel();
+
+CardLayoult layout = new new CardLayout();
+cards = new JPanel( layout );
+cards.add(card1, APANEL);
+cards.add(card2, BPANEL);
+
+layout.show(cards, APANEL );
+layout.show(cards, BPANEL );
+
+layout.first(cards);
+layout.last(cards);
+\end{verbatim}
+
+\item[JRadioButton] ButtonGroup használata kell, ha szeretnénk, hogy egyszerre csak választható ki közülül:
+\begin{verbatim}
+JRadioButton button1 = new JRadioButton("A");
+JRadioButton button2 = new JRadioButton("B");
+
+ButtonGroup group = new ButtonGroup();
+group.add( button1 );
+group.add( button2 );
+\end{verbatim}
+
+\item[JFileChooser] Használatnál figyeljünk a visszatérési értékre!
+
+\begin{verbatim}
+final JFileChooser fc = new JFileChooser();
+...
+int ret = fc.showOpenDialog( frame );
+if ( JFileChooser.APPROVE_OPTION == ret ) {
+    ...
+}
+\end{verbatim}
+
+\end{description}
+
+\section*{Feladat}
+
+Készítsünk egy egyszerû kvíz-alkalmazást, amely az alábbi típusú kérdéseket tartalmazhatja:
+
+- Eldöntendõ kérdés, pl.:
+\begin{verbatim}
+Hány fia volt Ádámnak a Biblia szerint?
+( ) 2
+( ) 3
+(*) 33
+\end{verbatim}
+
+- Kiválasztós, pl.:
+\begin{verbatim}
+Mely országok határosak Magyarországgal?
+[x] Szerbia
+[x] Szlovénia
+[ ] Japán
+\end{verbatim}
+
+Minden kérdésben 3-3 lehetõség van. Ezeket fájlból olvassuk, inicializálás során. A formátuma a következõ:
+
+\begin{verbatim}
+C:Hany versszakbol all a himnusz?:4:6:8:false:false:true
+S:Mely szamok primek?:1:2:7:false:true:true
+...
+\end{verbatim}
+
+Az inputban : karakterrel elválasztva 8 mezõ található, ezek jelentések a következõ:
+\begin{itemize}
+\item Az elsõ karakter megmondja, hogy milyen típusú kérdés adatait tartalmazza az adott sor. C = eldöntendõ, S = kiválasztós kérdés
+\item A kérdés szövege
+\item A lehetséges 3 válasz
+\item A válaszok helyessége
+\end{itemize}
+
+A játék képernyõterve \aref{gui} ábrán található.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{7}
+\caption{Képernyõterv}
+\label{gui}
+\end{figure}
+
+A program a következõ funkciókat biztosítsa:
+\begin{itemize}
+\item Egyszerre 5 kérdést adjon
+\item Lehessen menübõl kilépni, valamint új játékot kezdeni (ezekre kérjen megerõsítést a program!)
+\item A program jelezze a teszt kitöltöttségét egy JProgressBar segítségével
+\item Pontozás: minden jól megválaszolt eldöntendõ kérdés 10 pont. Minden eltalált kiválasztós kérdés 5 pont.
+\item A játék végén írjon ki egy gratuláló üzenetet, amely tartalmazza, hány pontot ért el a felhasználó
+\end{itemize}
+
+Példakérdések:
+\url{http://people.inf.elte.hu/legendi/java/res/questions.txt}
+
+\subsection*{További lehetõségek}
+\begin{enumerate}
+\item Játékot lehessen elmenteni, betölteni! (memento)
+\item Egyszer lehessen segítséget kérni egy '?' gombbal! Ha használtuk, tiltsuk le a gombot.
+\item A végén lehessen megnézni az eredményeket. Itt színes labelekkel jelezzük, hogy sikerült az adott kérdést teljesíteni (zöld - OK, piros - Fail, sárga - skip).
+\end{enumerate}
+\end{document}

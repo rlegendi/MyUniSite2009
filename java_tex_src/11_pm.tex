@@ -1,0 +1,22 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[latin2]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[magyar]{babel}
+\usepackage{url}
+\usepackage{indentfirst}
+\frenchspacing
+\author{legendi@inf.elte.hu}
+
+\title{11. Gyakorlat}
+\date{2010. április 28.}
+\begin{document}
+\maketitle
+
+\section*{+/- Feladat}
+
+\textbf{Feladat} Adott $v_1, v_2, ..., v_n$ vektorok, amelyen $n$ szál dolgozik. A program parancssori argumenetunkmént kap egy $e$ értéket. Keressük meg az elsõ olyan $j$ indexet, ahol ez a szám megtalálható, vagyis $v_i[j] = e, ~ 1 \leq j \leq n$. \emph{Az egyszerûség kedvéért feltételezzük, hogy minden vektorelem egyedi, valamelyik vektorban megtalálható a keresett $e$ érték, és $n=2$.}
+
+\bigskip
+Az absztrakt algoritmust igyekezzünk hatékonyan megírni (a ciklus terminálási feltételébe vegyük fel a közös logikai változót, amely jelzi, hogy megtaláltuk-e a keresett elemet, és a teljes szekvencializációt kerüljük el). Külön jelöljük, hogy mely változó lokális az egyes szálakra nézve, és melyek a közös változók.
+
+\end{document}

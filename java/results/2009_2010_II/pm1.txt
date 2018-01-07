@@ -1,0 +1,19 @@
+1. csoport
+
+		FizzBuzz	Collatz	Company
+1  BERPAAI:	+		+		+
+2  BEGPAAI:	+		+		+
+3  BIAOAAI:	+		+		+
+4  BOTPAAI:	+		+		+
+5  CSZNAAI:	-		-		+
+6  EIEOAAI:	-		-		-
+7  HEAPABI:	+		+		+
+8  KAMPAAI: 	+		+		+
+9  KEINAAI:	-		-		-
+10 KOJPAAI:	+		+		-
+11 KUZOABI:	+		+		-
+12 OKTPAAI:	+		+		+
+13 PIAPAAI:	+		+		+
+14 POVNAAI:	+		+		-
+15 RAGPAAI:	+		+		-
+16 SIAIABT:	+		+		-

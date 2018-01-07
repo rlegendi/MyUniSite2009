@@ -1,0 +1,495 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[latin2]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[magyar]{babel}
+\usepackage{url}
+\usepackage{indentfirst}
+\frenchspacing
+\author{legendi@inf.elte.hu}
+
+\title{2. Gyakorlat}
+\begin{document}
+\maketitle
+
+% csomagokat, láthatóságot, felsorolási típusokat, interfészeket, kivételkezelést, konstruktorokat
+
+\section*{Kiegészíés}
+\begin{description}
+\item[for-each ciklusok] Parancssori argumentumok listázása:
+\begin{verbatim}
+foreach (String act : args) {
+    System.out.println(act);
+}
+\end{verbatim}
+
+Tetszõleges tömbre.
+
+\item[Escape sequences] \texttt{$'\backslash{}r', '\backslash{}n', '\backslash{}t', '\backslash{}b',$} etc.\\
+Részletesen: \url{http://java.sun.com/docs/books/tutorial/java/data/characters.html}
+
+\item[Környezet beállítása] Konzolban:
+\begin{verbatim}
+Microsoft Windows XP [verziószám: 5.1.2600]
+(C) Copyright 1985-2001 Microsoft Corp.
+
+c:\tmp>set PATH=%PATH%;c:\Program Files\Java\jdk1.6.0_12\bin\
+
+c:\tmp>javac -version
+javac 1.6.0_12
+
+c:\tmp>javac HelloWorldApp.java
+
+c:\tmp>java HelloWorldApp
+Hello World!
+
+c:\tmp>
+\end{verbatim}
+\item[Operátorok] Eredmény típusa \emph{mindig} a bõvebb paraméter típusa (\texttt{double d = 1 / 2;} eredménye \texttt{0.0} lesz!).
+
+\item[Stringek összehasonlítása] Mint az objektumokat: \texttt{equals()} metódussal (az \emph{==} operátor referencia szerinti összehasonlítást végez csak, nem tartalom szerintit).
+
+\begin{verbatim}
+boolean b1 = "a" == "a";      // lehet hamis!
+boolean b2 = "a".equals("a"); // mindig megfeleloen mukodik
+\end{verbatim}
+
+\item[Összehasonlító operátor] Baloldalra lehetõleg konstanst írjunk. C++ probléma itt nem lehet, mert $0$, $1$ nem szerepelhet elágazás, ciklus terminálási feltételében, de kellemetlen helyzetek így is adódhatnak:
+
+\begin{verbatim}
+boolean b = false;
+
+if ( b = true ) { // Gyilkos typo
+    // ...
+}
+\end{verbatim}
+
+Igyekezzunk baloldalra konstansokat írni.
+
+\item[Többdimenziós tömbok] Inicializálásnál az 1. dimenziót kell csak megadni, azonban ha tudod a többit, azt is érdemes:
+
+\begin{verbatim}
+int[][] arr = new int[9][9];
+\end{verbatim}
+
+\item[Java forrás] Egy (jó) része nyílt, a forrás megtalálható a JDK könyvtárában (\texttt{src.zip} fájl).
+
+\end{description}
+
+\section*{Linkek}
+\begin{description}
+\item[A tárgy honlapja] Kozsik Tamás oldalán:
+\url{http://aszt.inf.elte.hu/~kto/teaching/java/}
+\item[Java Language Specification] Harmadik kiadás, rendes specifikáció, HTML, PDF formátumban.
+\url{http://java.sun.com/docs/books/jls/}
+\end{description}
+
+\section*{Csomagok}
+Modularizáció, névütközések feloldása, hozzáférés szabályozás, etc. Osztályok, interfészek gyûjteménye. Használható a \texttt{*} wildcard. Alapértelmezetten látszik a \texttt{java.lang.*} csomag minden eleme, minden mást importálni kell (anélkül ún. \emph{fully qualified classname}-mel hivatkozhatunk, pl. \texttt{java.util.Vector}):
+
+\begin{verbatim}
+import java.util.Vector; // 1 tipushoz
+import java.math.*;      // Minden package-beli tipus lathatova valik
+
+import java.awt.*;         // GUI
+import java.awt.event.*;   // GUI - esemenykezeles
+import javax.swing.*;      // Advancedebb GUI
+import java.util.*;        // Adatstrukturak
+import java.io.*;          // IO
+import java.util.regex.*;  // Regexp
+
+// static import: minden static konstans lathato az adott osztalybol
+// fenntartasokkal hasznalni
+import static java.lang.Math.*;
+\end{verbatim}
+
+A fordítás nehézkes, nem mûködik a \texttt{*.java\dots}. Minden .-tal szeparált rész egy könyvtárat jelent, fordítás a gyökérkönyvtárból. Static importot csak offtosan (struktúráltság, enkapszuláció, egysébge zárás ellen hat - használjatok helyette dedikált osztályt vagy interfészt). Csomag definíciója a Java fájl legelején:
+
+\begin{verbatim}
+package pkg;
+
+// Import utasitasok
+
+public class HelloWorldApp {
+    public static void main(String args[]) {
+        System.out.println("Hello World!");
+    }
+};
+\end{verbatim}
+
+Fordítás teljes útvonal megadásával:
+
+\begin{verbatim}
+C:\tmp>javac pkg/*.java
+
+C:\tmp>java pkg.HelloWorldApp
+Hello World!
+
+C:\tmp>
+\end{verbatim}
+
+Ha esetleg nevutkozes van (2 ugyanolyan osztaly van importalva), akkor minosetet nevvel erhetjuk el mindkettõt. Importokat hasznaljatok nyugodtan, nem gaz, nem emeszt eroforrast (nem c++, dinamikus).
+
+\subsection*{Feladat}
+Hozzatok létre egy \texttt{gyak2} csomagot, majd készítsetek egy DirLister alkalmazást! Ez parancssori paraméterként egy teljes elérési utat várjon, és hozzon létre egy java.io.File objektumot (\texttt{File dir = new File(args[0]);})! Ezután listázzátok ki a könyvtárban található összes, ".java"-ra végzõdõ fájlt (String\#endsWith(), File\#listFiles())!
+
+\section*{Függvények}
+Általános prototípus:
+
+\begin{verbatim}
+<módosítószavak> <visszatérési érték> <név>( <paraméterek listája> )
+        [ throws <kivétel lista> ] {
+    <utasítás1>;
+    <utasítás2>;
+    ...
+}
+\end{verbatim}
+
+\begin{itemize}
+\item Módosítószavak:
+	\begin{itemize}
+	\item Láthatóság: public, protected, private. Ha nem definiált, akkor ún. package-private láthatóság.
+	\item Lehet abstract - leszármazottban kötelezõen felüldefiniálandó
+	\item Lehet final - felüldefiniálhatóság letiltására
+	\item Lehet static - osztály szintû függvény (megjegyzés: static kontextusból csak static módosítóval ellátott hivatkozás szerepelhet)
+	\item Egyéb, pl. strictfp, native, synchronized, transient, volatile (utóbbi kettõ \textbf{csak} fieldekre). Ezekrõl késõbb.
+	\end{itemize}
+\item Visszatérési érték szerinti csoportosítás:
+	\begin{itemize}
+	\item \texttt{void}: eljárás
+	\item Minden egyéb: függvény
+	\end{itemize}
+\item Metódusnév: lowerCamelCase
+\item Paraméterátadás: minden paraméter érték szerint adódik át, \emph{még a referenciák is}.
+\end{itemize}
+
+\textbf{Szignatúra} A függvény neve és paramétereinek típusa -- más \textbf{nem}. Például:
+\begin{verbatim}
+eredmenyMeghatarozasa( double, int, int)
+\end{verbatim}
+
+Overloading, overriding.
+
+\subsection*{Feladat}
+Készítsetek egy függvényt, amely az Euklideszi-algoritmus alapján meghatározza két szám legnagyobb közös osztóját! A pszeudokód:
+
+\begin{verbatim}
+function gcd(a, b)
+    if a = 0
+       return b
+    while b ? 0
+        if a > b
+           a := a - b
+        else
+           b := b - a
+    return a
+\end{verbatim}
+
+\section*{Kivételek}
+Általános forma:
+
+\begin{verbatim}
+try {
+    ... // Kritikus utasitasok
+} catch (Exception1 e1) {
+    ...
+} catch (Exception2 e2) {
+    ...
+} finally {
+    
+}
+\end{verbatim}
+
+Az elsõ ág, amelybe a kivétel osztályhierarchia szerint beleillik, lekezeli. Újradobás lehetséges: \textit{throw e1;}, etc.
+
+Alapvetõen három típusú kivétel:
+\begin{enumerate}
+\item Felügyelt kivételek -- definiálni kell õket a függvényben, és ha definiáltak, le is kell õket kezelni (õsosztály: \texttt{java.lang.Exception}, pl. \texttt{java.lang.ClassNotFoundException}, \texttt{CloneNotSupportedException})
+\item Felügyeletlen kivételek -- nem kötelezõ sem difiniálni, sem lekezelni õket (õsosztály: \texttt{java.lang.RuntimeException}, pl. \texttt{ArrayIndexOutOfBoundsException}, \texttt{NumberFormatException}, \texttt{DivisionByZeroException})
+\item Léteznek még \texttt{Error}-ok, ezek a \texttt{Throwable} leszármazottai. Kritikus esetben fordulnak elõ, a lekezelésük is felesleges a legtöbb esetben (pl. \texttt{OutOfMemoryError}, \texttt{StackOverflowError})
+\end{enumerate}
+
+Mindkettõ õse a \texttt{Throwable} osztály - ezt kell hát lekezelni, ha mindent lehetõségre fel akarunk készülni. Jó tanács: üres kivételkezelõ blokkot \textbf{soha} ne készítsünk! Legegyszerûbb megoldás: \texttt{e.printStackTrace()}. További funkciók az Exception osztály javadoc-jában. Kivételt dobni a \texttt{throw} utasítással lehet.
+
+\section*{Példák}
+\subsection*{Egyszerû kivételkezelés}
+
+\begin{verbatim}
+public static void main(String[] args) {
+    try {
+        int res = Integer.parseInt(args[0]);
+        // ...
+    } catch (NumberFormatException nfe) {
+        System.err.println("Hibas input: " + args[0]);
+        nfe.printStacktrace();
+    }
+}
+\end{verbatim}
+
+\subsection*{Függvénydefiníció}
+\begin{verbatim}
+static double divide(int a, int b) trhows Exception {
+    if (0 == b) {
+        throw new RuntimeException("0-val valo osztas!");
+    }
+    
+    return (double) a / b;
+}
+
+public static void main(String[] args) {
+    try {
+        double res = divide(1, 0);
+    } catch (Exception e) {
+        System.err.println(e.getMessage());
+    }
+}
+\end{verbatim}
+
+\bigskip
+\noindent
+Részletesen: \url{http://java.sun.com/docs/books/tutorial/essential/exceptions/}
+\noindent
+Saját exception is definiálható, csak származtatni kell (pl. a \texttt{java.lang.RuntimeException}, \texttt{java.lang.Exception} osztályokból).
+
+
+\subsection*{Feladat}
+Készítsetek egy függvényt, amely megadja egy másodfokú egyenlet gyökeit! A függvény definíciója legyen a következõ:
+
+\begin{verbatim}
+private static int[] sqroots(final int a, final int b, final int c)
+        throws Exception {
+    // ...
+}
+\end{verbatim}
+
+A függvény dobjon kivételt, ha $a == 0$, vagy a diszkrimináns negatív! A függvény által dobott kivételeket kezeld is le a \texttt{main()} függvényben! A paramétereket a parancsori argumentumok határozzák meg, és az \texttt{Integer.parseInt()} függvény által dobott \texttt{NumberFormatException} kivételt is kezeljétek le ugyanabban a kivételkezelõ ágban!
+
+\section*{Objektumok}
+Minden típus az Object leszármazottja, ha nincs közvetlen õse. Javaban nincs többszörös öröklõdés (kivéve interfészeknél). Fontosabb függvények:
+
+\begin{description}
+\item[equals(Object)] Azonosság vizsgálat, contract szerint reflexív, tranzitív, szimmetrikus reláció, valamint konzisztens, és \texttt{x.equals(null)} értéke mindig hamis legyen.
+\item[hashCode()] Hasheléshez (pl. egyes set implementációk, vagy a Hashtable esetén). Contract szerint:
+	\begin{itemize}
+	\item Ugyanarra az objektumra hívva konzisztens értéket ad (ha az objektum nem változik, ugyanazt az értéket adja).
+	\item Ha két objektum az equals() szerint megegyezik, a hashCode() is egyezzen meg.
+	\item Két különbözõ objektumra \emph{nem kell} különbözõ értéket adni (ld. \emph{hash collision}).
+	\end{itemize}
+Példa:
+\begin{verbatim}
+	private int i = 0;
+	private String str = "str";
+	private boolean b = false;
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (b
+				? 1231
+				: 1237);
+		result = prime * result + i;
+		result = prime * result + ((str == null)
+				? 0
+				: str.hashCode());
+		return result;
+	}
+\end{verbatim}
+
+\item[toString()] Az objektum szöveges reprezentációját adja vissza (Stringként).
+\item[Egyéb függvények] clone(), finalize(), notify(), wait(), getClass()
+\end{description}
+
+Osztályok definiálhatók azonos forrásállományban (de csak egy public lehet), másik osztályban (belsõ osztályok), függvényen belül (lokális osztályok). Például:
+
+\begin{verbatim}
+package gyak2;
+
+class A { ... }
+
+public class B {
+    ...
+    class C { ... }
+    
+    void parse() {
+        class D { ... }
+        ...
+    }
+}
+\end{verbatim}
+
+Beágyazott osztályok lehetnek static-ok (nincs szükség a befoglaló osztály egy példányára). Ha egy osztály final, nem származtatható. Ha strictfp, akkor minden mûvelete strictfp.
+
+\subsection*{Származtatás}
+Javaban csak egyszeres öröklõdés van, kivéve az interfészek esetében. Általános forma:
+
+\begin{verbatim}
+class Foo extends Bar implements Baz1, Baz2, ... {
+    ...
+}
+\end{verbatim}
+
+A felüldefiniált függvények elé írjuk oda az \texttt{@Override} annotációt, es segít a compilernek kiszûrni az elgépelésbõl adódó problémákat fordítási idõben. Adattagok elérése: getter/setter függvények.
+
+\begin{verbatim}
+@Override
+public String toString() { ... }
+\end{verbatim}
+
+Konstruktorban a szülõre a super(), az aktuális példány valameny konstruktorára this() hívással hivatkozhatunk. Ha ezeknek a paramétere egy függvény visszatérési értéke lehet, az csak statikus függvény lehet.
+
+\begin{verbatim}
+class A {
+    protected int size;
+
+    public A(int size) {
+        this.size = size;
+    }
+}
+
+class B extends A {
+    public B()         { this(0); }
+    public B(int size) { super(size); }
+}
+\end{verbatim}
+
+Származtatásnál a szûkebb hatókör nem megengedett. Visszatérési értékre nem lehet túlterhelni, mert az nem része a szignatúrának. Visszatérési értéket lehet specializáli (hasznos pl. a clone() függvénynél - kovariáns kötés). A 'this' pszeudováltozó.
+
+\subsection*{Létrehozás, életciklus}
+Objektum létrehozása a new operátorral történik:
+
+\begin{verbatim}
+A a = new A(5); // Konstruktorhívás
+\end{verbatim}
+
+Felszabadítással nem kell foglalkozni, azt megoldja a GC (finalize). Memória: dinamikus/statikus/stack (utóbbihoz nem fértek hozzá), automatikusan felügyelt (eden, etc.), \texttt{System.gc()}, \texttt{finalize()}. A Java által használható memóriaméret megadható a -Xmx, -Xms, etc. paraméterekkel. Az aktuális értékek lekérdezhetõk a \texttt{Runtime} osztály metódusaival
+
+Statikus/dinamikus típus: statikus, amivel definiálva lett, dinamikus, amilyen referenciára éppen mutat.
+
+\begin{verbatim}
+A a = new B(5);
+\end{verbatim}
+
+A fenti példában az \texttt{a} változó statikus típusa A, dinamikus típusa B (ilyesmi megengedett, altípusos polimorfizmus, ld. Liskov-féle szubsztitúciós elv). A dinamikus típus leellenõrizhetõ az instanceof operátorral:
+
+\begin{verbatim}
+if (a instanceof B) { ... }
+else if (a instanceof C) { ... }
+\end{verbatim}
+
+elfedés
+
+\bigskip
+\noindent
+Részletek: \url{http://java.sun.com/javase/6/docs/api/java/lang/Object.html}
+
+\subsection*{Feladatok}
+
+\subsubsection*{Mátrixok}
+Valósítsd meg a mátrixok típusát Javaban! Két konstruktor legyen: az egyik a méretet adja meg, és minden elem 0 legyen, a másik pedig egy double[][] paramétert kapjon! Valósítsd meg az általános függvényeket (equals(), hashCode(), toString()), valamint mátrixokat lehessen összeadni, és adott valós számmal beszorozni, valamint lekérdezni, hogy négyzetes-e.
+
+\subsection*{Számok megvalósítása}
+Valósítsd meg a komplex és racionális számok típusát! A két osztály közös õse legyen a \texttt{MyNumber} osztály! A megvalósítandó mûveletek: összeadás, kivonás, szorzás, valamint a komplex számok esetén kérdezhessük még le azok hosszát ($|a + bi| == \sqrt{a^2 + b^2}$).
+
+\section*{Fájl írása}
+
+\begin{verbatim}
+package gyak2.pm;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+
+public class WriteFile {
+    public static void main(String[] args) {
+        PrintWriter pw = null;
+        
+        try {
+            pw = new PrintWriter(args[0]);
+            
+            pw.println("Line1");
+            pw.println("Line2");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (pw != null) pw.close();
+        }
+    }
+}
+\end{verbatim}
+
+\section*{Fájl olvasása}
+\begin{verbatim}
+package gyak2;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class ReadFile {
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Hianyzik a filenev!");
+            System.exit(1);
+        }
+        
+        BufferedReader br = null;
+        
+        try {
+            br = new BufferedReader(new FileReader(args[0]));
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try { br.close(); } catch (IOException e) { e.printStackTrace(); }
+            }
+        }
+    }
+}
+\end{verbatim}
+
+\newpage
+\section*{+/- Feladatok}
+A feladatokat a \url{legendi@inf.elte.hu} címre küldjétek, \textbf{szombat éjfélig}! A subject a következõképp nézzen ki:
+
+\begin{verbatim}
+csop<csoportszám>_<EHA-kód>_<a megoldott feladatok száma>
+\end{verbatim}
+
+Például:
+
+\begin{verbatim}
+csop1_LERIAAT_1  (csak az elsõ feladattal)
+csop1_LERIAAT_12 (mindkét feladattal)
+\end{verbatim}
+
+Mellékelni csak a Java forrásfájlokat mellékeljétek (semmiképp ne teljes Eclipse/NetBeans projecteket), és egy levelet küldjetek (több levél esetén az utolsó mellékleteit értékelem)! Ajánlott az elsõ feladatot NetBeans, a másikat Eclipse alatt készíteni. Szokni kell a környezetet, debuggolást. További fontos kritériumok:
+\begin{itemize}
+\item Ékezetes karaktereket \textbf{ne} használjatok! Fõleg azonosítók esetében ne! A Java ugyan ezt megengedi, ugyanakkor a különbözõ környezetekbe való konvertáláskor ($latin2 \leftrightarrow UTF-8 \leftrightarrow Cp1250$) összetörnek a karakterek! Az ilyen forrásokat fordítani, következésképp értékelni sem tudom.
+\end{itemize}
+
+\subsection*{1. Feladat}
+Készítsetek egy minimális alkalmazott nyilvántartó alkalmazást. Minden alkalmazottnak van neve és éves fizetése. A cégnél kétféle alkalmazott létezik: junior és senior (ezek külön osztályok legyenek!), elõbbibõl maximum 10, utóbbiból maximum 3 fõ dolgozhat a cégnél. Ezeket az adatokat tárold tömbben. Junior kollégák a fizetésük mellé étkezési utalványt kapnak, ennek az éves mértékét is szeretnénk tárolni, a senior kollégák pedig részvényeket szereznek a cégben.
+
+Az alkalmazás egy konzolos menün keresztül az alábbi funkciókat nyújtsa (használjátok a Console osztály readLine() metódusát!):
+\begin{itemize}
+\item Új alkalmazott felvétele (amennyiben van rá lehetõség)
+\item Jelenlegi alkalmazottak listázása
+\item Adott alkalmazott adatainak módosítása
+\item Kilépés
+\end{itemize}
+
+A megoldás érdekében definiáld felül a toString(), hashCode() és equals() függvényeket! Az egyes osztályok külön fordítási egységekben legyenek. A Main osztály a gyak2.pm1 csomagban, az összes többi a gyak2.pm1.data csomagban!
+
+\subsection*{2. Feladat}
+
+Készítsünk egy Sudoku ellenõrzõ programot! A program inputja egy fájl, amelynek soraiban pontosan 81 karakter található, és egy-egy Sudoku sorfolytonos ábrázolását jelenti. A program outputja egy fájl legyen, amelyben az érvényes kitöltést tartalmazó sorok kerülnek bele!
+
+\end{document}
+
+% TODO: default konstruktor, main is dobhat kivételt, nem a szignatúra része

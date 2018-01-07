@@ -1,0 +1,24 @@
+5. csoport
+
+		FizzBuzz	Collatz	Company
+1  BAPPAAI:	-		-		+
+2  DADOAAI:	+		+		-
+3  FRKPAAI:	+		+		-
+4  GYPPAAI:	+		+		+
+5  HAJPAAI:	+		+		+
+6  JUAPAAI:	+		+		-
+7  KAPPAAI:	+		+		-
+8  KAIPAAI:	+		+		?
+9  KATPAAI:	+		+		+
+10 KOAOADI:	+		+		-
+11 MABPAAI:	+		+		-
+12 MAGPABI:	+		+		-
+13 MEZOABI:	+		+		+
+14 NEGOAAI:	+		+		+
+15 PAPPAAI:	+		+		+
+16 PIJNAAI:	+		+		-
+17 SAAPAAI:	+		+		0
+18 SIAPAAI:	+		+		?
+19 SVZIAAT:	+		+		+
+20 SZBNAAT:	-		-		+
+21 CZCMAAT:	+		+		+

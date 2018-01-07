@@ -1,0 +1,488 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[latin2]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[magyar]{babel}
+\usepackage{url}
+\usepackage{indentfirst}
+\frenchspacing
+\author{legendi@inf.elte.hu}
+
+\title{3. Gyakorlat}
+\date{2010. február 23.}
+\begin{document}
+\maketitle
+
+\section*{Kiegészítés}
+\begin{description}
+\item[Init blokkok] Osztály hivatkozásakor, példányosításkor.
+\begin{verbatim}
+public class InitTest {
+    static {
+        // static tagokkal egyidoben,
+        System.out.println("1");
+    }
+    
+    {
+        // osztaly tagokkal egyidoben ertekelodik ki
+        System.out.println("2");
+    }
+    
+    public InitTest() {
+        System.out.println("3");
+    }
+    
+    public static void main(String[] args) {
+        // Visszateresi ertekkel nem kell foglalkozni
+        new InitTest();
+        System.out.println("4");
+    }
+}
+\end{verbatim}
+
+Megkötések:
+\begin{itemize}
+\item Nincs forward referencing
+\item Nincs return (reccs)
+\item Static nem dobhat ellenõrzött kivételt
+\item Példányinicializátor dobhat ellenõrzött kivételt, ha \emph{minden} konstruktor dobja azt a kivételt.
+\end{itemize}
+
+\item[finalize()] Nem destruktor!
+\item[equals()] overloading vs. overriding, ld. FAQ!
+\item[String - immutable!] Párhuzamosság miatt fontos:
+\begin{verbatim}
+String string = "AAAxAAA";
+
+string.replace('x', 'A');
+
+System.out.println(string); // "AAAxAAA"
+string = string.replace('x', 'A');
+System.out.println(string); // "AAAAAAA"
+\end{verbatim}
+
+Vagy StringBuilder, StringBuffer használható:
+
+\begin{verbatim}
+StringBuffer sb = new StringBuffer();
+sb.append("Hello ").append("World");
+sb.reverse();
+System.out.println( sb.toString() ); // "dlroW olleH"
+sb.reverse();
+sb.setCharAt(6, '-');
+System.out.println( sb.toString() ); // "Hello-World"
+sb.deleteCharAt(6);
+System.out.println( sb.toString() ); // "HelloWorld"
+sb.delete(0, sb.length() );
+System.out.println( sb.toString() ); // ""
+\end{verbatim}
+
+\bigskip
+\noindent
+\textbf{Részletesen:} \url{http://java.sun.com/javase/6/docs/api/java/lang/StringBuilder.html}
+
+\item[catch] Finally, catch opcionális, pl.:
+\begin{verbatim}
+try {
+    ...
+} finally {
+    ...
+}
+
+try {
+    ....
+} catch (Throwable t) {
+    ....
+}
+\end{verbatim}
+
+\item[Típuskonverzió] A felsõ bitek esnek ki, pl.:
+
+\begin{verbatim}
+int i = 0x12345678;
+short s = (short) i; // 0x45678
+byte b = (byte) i;   // 0x78
+\end{verbatim}
+
+\item[Labelek] Használható break, continue esetén:
+\begin{verbatim}
+LABEL_OUTER:
+for (int i=0; i<10; ++i) {
+    for (int j=0; j<10; ++j) {
+        if ( ... ) {
+            break LABEL_OUTER;
+        } else if ( ... ) {
+            continue LABEL_OUTER;
+        }
+    }
+}
+\end{verbatim}
+
+\item[Csomagok] Leképezés fájlrendszerre.
+
+\end{description}
+
+\section*{Interfészek}
+Részletesen: \url{http://java.sun.com/docs/books/tutorial/java/IandI/index.html}
+\bigskip
+
+Új referencia típus, absztrakt függvények és konstansok gyûjteménye. Absztrakciós szintet vezet be, felületet definiál. Osztály megvalósít egy interfészt (\texttt{implements}), ha minden függvényét megvalósítja (\texttt{abstract} osztálynál nem kötelezõ, ugye).
+
+Eltérés az osztályoktól:
+\begin{itemize}
+\item Többszörös öröklõdés (névütközésre figyelni, függvényekre fordítási hiba lesz, nem C++, konstansok minõsített névvel elérhetõk). Szépen ezt úgy mondják, hogy a specifikáció többszörösen örökölhetõ, kód csak egyszeresen.
+\item Nincs közös õs (mint osztályoknál az \texttt{Object})
+\end{itemize}
+
+\subsection*{Deklaráció}
+Mint az osztályoké:
+
+\begin{verbatim}
+interface A {}
+
+public interface B {}
+\end{verbatim}
+
+Öröklõdési reláció neve itt kiterjesztés, lehet többszörös:
+
+\begin{verbatim}
+interface C extends A, B {}
+\end{verbatim}
+
+Körkörös kiterjesztés $\rightarrow$ reccs.
+
+\subsection*{Tagok}
+
+Mint az osztályoké, de:
+
+\begin{itemize}
+\item minden adattag public, static és final alapból
+\item minden függvény public és abstract alapból (ezeket nem kell kiírni se). Más nem lehet.
+\end{itemize}
+
+Elõbbibõl következik, hogy minden adattagot inicializálni kell (különben reccs), és ez csak már ismert érték lehet (forward referencing tilos):
+
+\begin{verbatim}
+interface D {
+    int I = J; // Hibas definicio!
+    int J = 0;
+}
+\end{verbatim}
+
+Nem szerepelhet this, super sem. Módosítószavak között nem szerepelhet synchronized, transient, volatile -  ezek olyan dolgokat kötnek meg, amiknek implementációs szinten kell eldõlniük, használatuk ésszerûtlen lenne (?).
+
+\bigskip
+\textbf{Megjegyzés} Statikus típus: legyen minél kevésbé speciális (megvalósítás könnyen lecserélhetõ). (\dots)
+
+\subsection*{Példa}
+
+\begin{verbatim}
+interface RideableStuff {
+    public final static int MAX_SPEED = 90;
+    public abstract int getSpeed();
+}
+
+interface ColoredStuff {
+    public abstract int getColor() throws UndefinedColorException;
+}
+
+class Pony implements ColoredStuff, RideableStuff {
+    public int getSpeed() { return MAX_SPEED / 10; }
+    
+    public int getColor() throws UndefinedColorException {
+        return 0xFF;
+    }
+    
+    public static void main(String[] args) {
+        ColoredStuff colored = new Pony();
+        System.out.println( colored.getColor() );
+        if (colored instanceof RideableStuff) {
+            RideableStuff rideable = (RideableStuff) colored;
+            System.out.println( rideable.getSpeed() );
+        }
+    }
+}
+\end{verbatim}
+
+\subsection*{Feladat}
+Csináljatok egy Bárány osztályt, amelynek van egy név attribútuma! Az osztály implementálja a java.lang.Cloneable interfészt! A main() függvényben példányosítsátok az osztályt, a neve legyen Dolly, majd klónozzátok az Object\#clone() függvénnyel! Ezután írjátok ki a klón nevét!
+
+\bigskip
+\noindent
+\textbf{Megjegyzés} A visszatérési értékre specializálhatjátok a clone() függvényt:
+
+\begin{verbatim}
+@Override
+public Sheep clone() throws CloneNotSupportedException { ... }
+\end{verbatim}
+
+A dobott kivételt kezeljétek le!
+
+\section*{Jar fájlok}
+Java Archive, appletek aláírhatók (felemelt biztonsági korlát), tömörít (sima zip file), hordozhatóság (pl. mobilra), klikkre indul, verziókövetés (manifest entry-ken keresztül).
+
+\begin{verbatim}
+jar --help
+\end{verbatim}
+
+Fontosabb mûveletek:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+jar tf foo.jar & Tartalom listázása \\ \hline
+jar xf foo.jar & Kicsomagolás \\ \hline
+java -jar foo.jar & Futtatás \\ \hline
+jar cf mibe.jar miket & Új jar létrehozása \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection*{Új jar létrehozása}
+\textbf{Alakja:}
+\begin{verbatim}
+jar cf [foo.jar] [mibõl]
+\end{verbatim}
+
+\begin{itemize}
+\item c : Ez a kapcsoló azt mutatja, hogy szeretnénk létrehozni egy új archívumot.
+Konvenció, hogy jarnak nevezzük ezeket az állományokat, de ez nem kötelezõ.
+\item f : Ezzel mondjuk meg a programnak, hogy fájlból szeretnénk dolgozni. E
+nélkül az std. inputról várja a bemenetet.
+\item mibõl : Ezeket a fájlokat csomagoljuk be. Ezek lehetnek egész könyvtárak,
+könyvtárstruktúrák vagy csak 1 darab classfájl.
+\end{itemize}
+
+Miután létrehoztuk az archívumot, még van egy apró dolgunk: módoítanunk
+kell a manifest\footnote{A manifest egy olyan fájl, ami automatikusan generálódik a létrehozásnál, de akár le is cserélhetõ. Az a lényege, hogy metainformációt tartalmaz az archívumról, pl. ki, mikor fordítota, milyen fordítóval, mi a futtatandó osztály, milyen \textbf{classpath beállítások} tartoznak hozzá (ha van benne ilyen, mást nem is vesz figyelembe), etc.}-et, hogy megmondjuk mely osztályból kell indítani a main() függvényt. Erre csak akkor van szükség, ha futtathatóvá szeretnénk a tenni a jart. Ezt úgy tehetjük meg, hogy létrehozunk egy sima txt fájlt (pl. mainClass.txt), amibe egyetlenegy sort kell
+begépelni:
+
+\begin{verbatim}
+Main-Class: MAIN_CLASS_NEVE (pl. Hellow.class esetén Hellow)
+\end{verbatim}
+
+\noindent
+\textbf{Gotcha} A fájl utolsó sora tartalmazzon egy üres sort, mert \emph{az utolsó sor nem lesz feldolgozva!}
+
+\bigskip
+Ezután frissíteni kell a manifestet (update):
+
+\begin{verbatim}
+jar umf mainClass foo.jar
+\end{verbatim}
+
+Futtatni vagy klikkeléssel, vagy a következõ paranccsal lehet:
+
+\begin{verbatim}
+java -jar foo.jar
+\end{verbatim}
+
+\subsection*{Feladat}
+Készíts egy futtatható jar fájlt a következõ HelloWorld programból! A package struktúra megtartására figyelj!
+
+\begin{verbatim}
+package pkg;
+
+public class HelloWorldApp {
+    public static void main(String args[]) {
+        System.out.println("Hello World!");
+    }
+}
+\end{verbatim}
+
+\section*{Streamek}
+Csatornák, absztrakciós szint bemenet-kimenet kezelésére (hiext, lorem).
+
+\bigskip
+\textbf{Részletesen:} \url{http://java.sun.com/docs/books/tutorial/essential/io/}
+
+\subsection*{Példa}
+\begin{verbatim}
+package gyak3;
+
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
+public class WriteSampleFile {
+    public static void main(String[] args) throws Exception {
+        PrintWriter pw = new PrintWriter( new FileWriter("dummy.txt") );
+        pw.println("Dummy data here");
+        pw.close();
+    }
+}
+\end{verbatim}
+
+\subsection*{Csoportosítás}
+
+Szervezés szerint:
+\begin{itemize}
+\item InputStream, OutputStream (bájtszervezésû)
+\item Reader, Writer (karakterszervezésû)
+\end{itemize}
+
+Ezekbõl rengeteg változat, pl.
+\begin{itemize}
+\item StringReader, FileReader, BufferedReader, etc.
+\item FileInputStream, DataInputStream, etc.
+\item FileOutputStream, PrintStream, etc.
+\item FileWriter, PrintWriter, etc.
+\end{itemize}
+
+Pl. FileReader, FileWriter, FileInputStream, FileOutputStream
+
+Feladat szerinti csoportosítás:
+\begin{itemize}
+\item Adatforrás, adatnyelõ (pl. FileInputStream, FileReader)
+\item Szûrõk: meglévõ csatornához plusz funkcionalitás (pl. BufferedInputStream). Csatornák összekapcsolhatók (pl. SequenceInputStream), csatornák (pl. kommunikációs közeg szálaknak, PipedInputStream, etc.)
+\end{itemize}
+
+\subsection*{Alapvetõ mûveletek}
+\begin{itemize}
+\item Megnyitás automatikus, lezárás: \texttt{close()} (ne felejtsd el, mert nem fogsz tudni hozzáférni)
+\item flush(): automatikus endline karakterre a szöveges fájlokban.
+\item Kiírás: write(), print()
+\item Olvasás: read(). Ha a csatorna kiürül, akkor az olvasó mûvelet blokkolódik, amíg adatot nem kap:
+
+\begin{verbatim}
+public static void main(String[] args) throws Exception {
+    int i = System.in.read();
+    System.out.println("A kapott karakter: " + i);
+}
+\end{verbatim}
+
+\item "Könyvjelzõ-mechanizmus", ha támogatott: markSupported(), mark(), reset()
+\item Padding átugrása: skip()
+\item Csatorna ürességének ellenõrzése: ready()
+\item Hány bájtot lehet minimum olvasni? available()
+\begin{verbatim}
+int meret = new FileInputStream("tmp.txt").available();
+\end{verbatim}
+\end{itemize}
+
+\subsection*{Speciális streamek}
+
+\begin{enumerate}
+\item Sorok számolására: LineNumberInputStream\#getLineNumber()
+\item Adatok olvasása, visszafûzése a csatornára: PushbackInputStream, PushbackReader
+\item Bufferelt csatornák: BufferedReader, BufferedInputStream
+\item Véletlen elérésû fájlok: RandomAccessFile
+\item Szövegfeldolgozás: StringTokenizer (van sima StreamTokenizer is)
+\item System.in, out, err: ezek is InputStream, PrintStream-ek. Pl. std. input átirányítása:
+\begin{verbatim}
+BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+\end{verbatim}
+\end{enumerate}
+\section*{Fájl írása}
+
+\begin{verbatim}
+package gyak3;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+
+public class WriteFile {
+    public static void main(String[] args) {
+        PrintWriter pw = null;
+        
+        try {
+            pw = new PrintWriter(args[0]);
+            
+            pw.println("Line1");
+            pw.println("Line2");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (pw != null) pw.close();
+        }
+    }
+}
+\end{verbatim}
+
+\section*{Fájl olvasása}
+\begin{verbatim}
+package gyak3;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class ReadFile {
+    public static void main(String[] args) {
+        BufferedReader br = null;
+        
+        try {
+            br = new BufferedReader(new FileReader(args[0]));
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try { br.close(); } catch (IOException e) { e.printStackTrace(); }
+            }
+        }
+    }
+}
+\end{verbatim}
+
+\section*{+/- Feladatok}
+A feladatokat a \url{legendi@inf.elte.hu} címre küldjétek, \textbf{szombat éjfélig}! A subject a következõképp nézzen ki:
+
+\begin{verbatim}
+csop<csoportszám>_gyak<gyakorlat száma>_<EHA-kód>_<a megoldott feladatok száma>
+\end{verbatim}
+
+Például:
+
+\begin{verbatim}
+csop1_gyak3_LERIAAT_1  (csak az elsõ feladattal)
+csop1_gyak3_LERIAAT_12 (mindkét feladattal)
+\end{verbatim}
+
+Mellékelni csak a Java forrásfájlokat mellékeljétek (semmiképp ne teljes Eclipse/NetBeans projecteket), esetleg rarolva, zipelve, és egy levelet küldjetek (több levél esetén az utolsó mellékleteit értékelem)! Ajánlott az elsõ feladatot NetBeans, a másikat Eclipse alatt készíteni. Szokni kell a környezetet, debuggolást. További fontos kritériumok:
+\begin{itemize}
+\item Ékezetes karaktereket \textbf{ne} használjatok! Fõleg azonosítók esetében ne! A Java ugyan ezt megengedi, ugyanakkor a különbözõ környezetekbe való konvertáláskor ($latin2 \leftrightarrow UTF-8 \leftrightarrow Cp1250$) összetörnek a karakterek! Az ilyen forrásokat fordítani, következésképp értékelni sem tudom.
+\end{itemize}
+
+\subsection*{1. Feladat}
+
+Készítsünk egy egyszerû l33t5p34k (leetspeak) generátort! A program 1 parancssori argumentumot kapjon: egy input fájl elérési utat. A program olvassa be az inputot fájlt, és minden szón végezze el a következõ módosításokat, majd írja ki a képernyõre a módosított szöveget:
+
+\begin{itemize}
+\item Minden 2. karakter esetén a kisbetûbõl csináljon nagyot, a nagybetûbõl kicsit!
+\item "a" $\rightarrow$ "@"
+\item "e" $\rightarrow$ "3"
+\item "i" $\rightarrow$ "1"
+\item "o" $\rightarrow$ "0"
+\item "u" $\rightarrow$ "v"
+\item "f" $\rightarrow$ "ph"
+\item "s" $\rightarrow$ "\$"
+\item "g" $\rightarrow$ "9"
+\item "y" $\rightarrow$ "j"
+\item "t" $\rightarrow$ "+"
+\item "!" $\rightarrow$ "1"
+\item Ha az utolsó karakter:
+\begin{itemize}
+\item "s" $\rightarrow$ "z"
+\item "ck" $\rightarrow$ "x"
+\end{itemize}
+\end{itemize}
+
+\subsection*{2. Feladat}
+
+Készítsünk egy Sudoku ellenõrzõ programot! A program inputja egy fájl, amelynek soraiban pontosan 81 karakter található, és egy-egy Sudoku sorfolytonos ábrázolását jelenti. A program outputja egy fájl legyen, amelyben az érvényes kitöltést tartalmazó sorok kerülnek bele!
+
+Példa input fájl sorok:
+\begin{verbatim}
+123456789123456789123456789123456789123456789123456789123456789123456789123456789
+123456789234567891345678912456789123567891234678912345891234567891234567912345678
+\end{verbatim}
+
+\end{document}
+
+% Enumok, GUI
+% file.separator, pathSeparator

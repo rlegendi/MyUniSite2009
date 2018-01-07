@@ -1,0 +1,459 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[latin2]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[magyar]{babel}
+\usepackage{url}
+\usepackage{indentfirst}
+\frenchspacing
+\author{legendi@inf.elte.hu}
+
+\usepackage{graphicx}
+\usepackage{amssymb}
+
+\title{6. Gyakorlat}
+\date{2010. március 16.}
+\begin{document}
+\maketitle
+
+\section*{Kiegészítés}
+
+\begin{itemize}
+\item Oprendszer függõ tulajdonságok:
+\begin{verbatim}
+// PATH elvalaszto, pl. ":" - Unix, ";" - Windows
+final String PATH_SEPARATOR = File.pathSeparator;
+// Ugyanaz, csak karakterkent
+final char PATH_CHAR = File.pathSeparatorChar;
+
+// Nev szeparator, pl. "/" - Unix, "\" - Windows
+final String SEPARATOR = File.separator;
+// Ugyanaz, csak karakterkent
+final char SEPARATOR_CHAR = File.separatorChar;
+
+// Sorvege karakter, pl. "\n" - Unix, "\r\n" - Windows
+// Reszletesen lasd FAQ!
+final String EOL = System.getProperty("line.separator");
+\end{verbatim}
+\item ++i, i++
+\begin{verbatim}
+int i = 0;
+System.out.println(i++); // kiir, megnovel: "0"
+System.out.println(++i); // megnovel, kiir: "2"
+\end{verbatim}
+
+\item \textbf{Közvetlen elérésû fájlok} A \texttt{java.io.RandomAccessFile}, kb. mint egy bájtvektor, olvasható és írható. Fájlmutató az aktuális pozícióra, ez lekérdezhetõ(\texttt{getFilePointer()}), állítható (\texttt{seek(int)}). Implementálja mind a DataInput, DataOutput interfészeket (mindkettõt egyszerre), a mûveleteivel tetszõleges típus írható, olvasható (úgy használható, mint a DataInputStream, DataOutputStream: \texttt{write*}, \texttt{read*} függvények), byte-ok átugorhatók (\texttt{skip(int)}). Példaalkalmazás:
+
+\begin{verbatim}
+package gyak6;
+
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
+public class RandomFileTest {
+    public static void main(final String[] args)
+            throws IOException {
+        final RandomAccessFile raf = 
+            new RandomAccessFile("dummy.dat", "rw");
+
+        raf.writeInt(0xCAFEBABE);
+        raf.seek(16);
+        raf.writeInt(0xDEADBEEF);
+        raf.seek(32);
+        raf.writeInt(0xBADF00D0);
+        raf.seek(48);
+        raf.writeInt(0xDEADC0DE);
+        raf.close();
+    }
+}
+\end{verbatim}
+
+\textbf{Megjegyzés:} bájtokat írunk ki, nem elfelejteni! Hexa módban kell megnyitni a fájlt, hogy lássuk ténylegesen mi is íródott ki, pl. TC + F3 + 3, vagy vi + ":\%!xxd".
+
+Gotchaz:
+\begin{itemize}
+\item write(int) - hiába van int paramétere, csak byte-ot ír ki, a legalját
+\item seek(), write(...) - nem tolódik tovább a stream, kézzel kell mindent odébbmásolni
+\item raf.seek(file.length()); - file végére ugrás, ahhoz hozzáfûzés
+\item write() - elfogad byte[] paramétert, de writeBytes() - csak Stringet
+\item EOFException - elindexelésnél (IOException leszármazottja)
+\end{itemize}
+
+\textbf{Részletesen:} \url{http://java.sun.com/javase/6/docs/api/java/io/RandomAccessFile.html}
+
+\item \textbf{Listenerek egyéb megvalósításai} Saját listener megvalósítása:
+\begin{verbatim}
+public class GUI1 {
+    private final JButton ok = new JButton("Ok");
+    
+    private class OkButtonActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Ok pressed");
+        }
+    }
+    
+    public GUI1() {
+        OkButtonActionListener listener = new OkButtonActionListener();
+        ok.addActionListener(listener);
+    }
+}
+\end{verbatim}
+
+vagy maga az osztály implementálja az interfészt, mindenre rá lehet aggatni, majd setActionCommand() ill. getActionCommand() függvény használható a megkülönböztetésre:
+
+\begin{verbatim}
+public class GUI2 implements ActionListener {
+    private final JButton ok = new JButton("Ok");
+    private final JButton cancel = new JButton("Ok");
+    
+    private final String OK_COMMAND     = "ok";
+    private final String CANCEL_COMMAND = "cancel";
+    
+    public GUI2() {
+        ok.addActionListener(this);
+        ok.setActionCommand(OK_COMMAND);
+        
+        cancel.addActionListener(this);
+        cancel.setActionCommand(CANCEL_COMMAND);
+    }
+    
+    public void actionPerformed(ActionEvent e) {
+        if (OK_COMMAND.equals(e.getActionCommand())) {
+            System.out.println("Ok pressed");
+        } else if (CANCEL_COMMAND.equals(e.getActionCommand())) {
+            System.out.println("Cancel oressed");
+        }
+    }
+}
+\end{verbatim}
+
+\item \textbf{Komplexebb grafikus felület} Containerekkel (Panel, JPanel).
+
+\end{itemize}
+
+\section*{Feladat}
+
+Készítsünk egy egyszerû konzolos alkalmazást, amely képes fájlok bináris karbantartására! A program elsõ paraméterként kapja meg a szerkesztendõ fájl nevét. A további paraméterek a következõk lehetnek:
+
+\begin{enumerate}
+\item 'mb <pozíció> <byte>': az adott pozíción lévõ byte érték módosítása
+\item 'mi <pozíció> <int>':az adott pozíción lévõ int érték módosítása
+\item 'i <pozíció> <szöveg>': a specifikált szöveg beillesztése az adott pozícióra. A program illessze be a szöveget, azaz tolja el a bájtokat megfelelõképp.
+\end{enumerate}
+
+\section*{Annotációk}
+Dekorációk a forráskódban, elsõ sorban külsõ toolok számára hasznos eszközök, de pl. a fordító, ill. maga a program is hasznukat veheti (voltak ad hoc jellegû megfelelelõik eddig is, pl. @deprecated javadoc tag). Általános célú eszköz, Java 5.0 óta, metainformációt közölhetnek.
+
+A program szemantikájára direkt módon nincsenek hatással, viszont különbözõ eszközök, libek ezt az információt már felhasználhatják a program futásának módosítására. Kiegészítik a javadoc tageket.
+
+Felhasználási lehetõségek:
+
+\begin{itemize}
+\item Információ a fordítónak (pl. warningok kikapcsolása, elavult kódrészletek jelzése)
+\item Fordítási, deployment információk (pl. kódgenerálás)
+\item Futásidejû feldolgozás (pl. egyes annotációk futási idõben is elérhetõk)
+\end{itemize}
+
+\subsection*{Fontosabb beépített annotációk}
+
+\textbf{Megjegyzés:} @ = "AT", mint "Annotation Type"
+
+\begin{description}
+\item[@Override] Felüldefiniált metódusok jelzésére, fordítási idejû ellenõrzés
+\begin{verbatim}
+@Override
+public String toString() { ... }
+\end{verbatim}
+
+\item[@Deprecated] Elavult, ám reverse compatibility miatt fontos függvények jelölésére. Fordítási idejû ellenõrzés, warningot generál.
+\begin{verbatim}
+@Deprecated
+public void someChaoticMethod { ... }
+\end{verbatim}
+
+\item[@SuppressWarnings] Adott kódrészletben a fordítási idejû figyelmeztetések kikapcsolása (kódrészlet = TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL\_VARIABLE). Opciók lehetnek: "deprecation", "unchecked", "unused".
+
+\begin{verbatim}
+@SuppressWarnings("deprecation")
+public int someChaoticFunction() { ... }
+
+@SuppressWarnings({ "deprecation", "unchecked" }) // ld. kesobb
+public int someVeryChaoticFunction() { ... }
+\end{verbatim}
+\end{description}
+
+\subsection*{Definiálás}
+Kiterjeszthetõ: saját változatokat is lehet definiálni, \texttt{@interface} kulcsszó. Paraméter nélkül \emph{marker}:
+
+\begin{verbatim}
+@interface MayBeNull {}
+
+class PersonalData {
+    @MayBeNull private String maidenName;
+}
+\end{verbatim}
+
+Ha egyetlen értéke van, azt érdemes \emph{value()}-nak hívni, mert rövidebb használni:
+
+\begin{verbatim}
+@interface MayBeNull {
+    String value();
+}
+
+class PersonalData {
+    @MayBeNull("if (gender == male)")
+    String private maidenName;
+}
+\end{verbatim}
+
+Ha a value() String[] típusú, akkor használható simán "" vagy \{ "", "" \} forma is:
+
+\begin{verbatim}
+@interface MayBeNull {
+    String[] value();
+}
+
+class PersonalData {
+    @MayBeNull("if (gender == male)")
+    private String maidenName;
+
+    @MayBeNull({"agreed to term of usage", "specified value"})
+    private int salary;
+}
+\end{verbatim}
+
+Különben ki kell írni az annotáció használatánál a \emph{tag = érték} párokat:
+
+\begin{verbatim}
+@interface MayBeNull {
+    String description();
+}
+
+class PersonalData {
+    @MayBeNull(description = "if (gender == male)")
+    private String maidenName;
+}
+\end{verbatim}
+
+Több tag is megadható, vesszõvel elválasztva. Alapértelmezett érték is definiálható:
+
+\begin{verbatim}
+@interface MayBeNull {
+    String description();
+    boolean managed() default false;
+}
+
+class PersonalData {
+    @MayBeNull(description = "if (gender == male)")
+    private String maidenName;
+}
+\end{verbatim}
+
+\subsection*{Megszorítások}
+\begin{enumerate}
+\item Nem lehet generikus -- ld. késõbb :-)
+\item A függvények
+\begin{enumerate}
+\item sem lehetnek generikusak
+\item nem lehetnek paraméterei
+\item nem tartalmazhatnak throws deklarációt
+\item visszatérési értékük csak a következõ lehet: primitív típus, String, enum, Class, annotáció (ciklikus hivatkozás szintén tilos), ezekbõl képzett 1 dimes tömb.
+\end{enumerate}
+\item nem lehet szülõinterfésze, de implicit módon kiterjeszti a \texttt{java.lang.Annotation} osztályt. Metódusai nem ütközhetnek sem az ebben, sem az Object-ben definiált metódusokkal.
+\item de: mint az interfészek, tartalmazhatnak osztály, interfész, enum, etc. definíciókat.
+\end{enumerate}
+
+\subsection*{Meta-annotációk}
+A API-ban a \texttt{java.lang.annotation.*} csomag
+\begin{description}
+\item[@Retention()] Annotáció hozzáférhetõségének szabályozása, java.lang
+\begin{enumerate}
+\item \texttt{RetentionPolicy.SOURCE} - csak forráskódban látható, fordításnál kiesik (mint a comment)
+\item \texttt{RetentionPolicy.RUNTIME} - futtatási idõben is hozzáférhetõ
+\item \texttt{RetentionPolicy.CLASS} - a class file-ba belekerül, de a JVM nem fér hozzá
+\end{enumerate}
+\item[@Target()] Annotáció használhatóságának szabályozása, \texttt{java.lang.annotation.ElementType} használatával: ANNOTATION\_TYPE, CONSTRUCTOR, FIELD, LOCAL\_VARIABLE, METHOD, PACKAGE, PARAMETER, TYPE, TYPE\_PARAMETER, TYPE\_USE
+\item[@Inherited] Kizárólag osztálydefinícióra, származtatásnál az adott annotáció is öröklõdik
+\item[@Documented] Bekerül a javadoc-kal generált API leírásba is
+\end{description}
+
+\subsubsection*{Példa}
+\begin{verbatim}
+@Retention(RetentionPolicy.SOURCE)
+@Target( { ElementType.FIELD, ElementType.PARAMETER,
+           ElementType.LOCAL_VARIABLE } )
+@interface MayBeNull {
+    String value();
+}
+\end{verbatim}
+
+\subsection*{Felhasználás}
+\begin{verbatim}
+@SuppressWarnings("deprecation")
+public void deprecatedFunction() {
+    JFrame frame = new JFrame();
+    frame.show(); // deprecated
+}
+
+@SuppressWarnings("unchecked")
+public void supressedFunction() {
+    Vector v = new Vector(); // warning
+}
+\end{verbatim}
+
+Futási idõben való elemzés: késõbb, a reflection tárgyalásánál.
+
+\subsection*{Feladat}
+Készíts egy saját @WrittenBy annotációt, amely tartalmazza az adott osztály, függvény szerzõjének nevét (author, amely alapértelmezetten a te nevedet tartalmazza), az utolsó módosítás dátumát (szintén egy stringben), valamint a verziószámot, amely egy double (és alapértelmezett értéke 1.0). Gondoskodj róla, hogy az adott annotációt csak osztály és függvénydefiníció esetén lehessen alkalmazni, valamint hogy kerüljön bele a generált dokumentációba!
+
+\section*{Generic}
+Egyszerûbb példák (java.util csomagból):
+
+\begin{verbatim}
+public interface List<E> {
+    void add(E x);
+    Iterator<E> iterator();
+}
+
+public interface Iterator<E> {
+    E next();
+    boolean hasNext();
+}
+\end{verbatim}
+
+E - formális típusparaméter, amely aktuális értéket a kiértékelésnél vesz fel (pl. Integer, etc.).
+
+\subsection*{Altípusosság}
+Nem konvertálhatók, ennek oka:
+
+\begin{verbatim}
+List<String> l1 = new ArrayList<String>();
+List<Object> l2 = l1; // error
+
+// Mert akkor lehetne ilyet csinalni:
+l2.add(new Object());
+l1.get(0); // reccs, Object -> String castolas
+\end{verbatim}
+
+Magyarul ha $S \sqsubseteq T \nRightarrow G\langle{}S\rangle \sqsubseteq G\langle{}T\rangle{}$ - ez pedig ellent mond az ember megérzésének. Castolni lehet (warning), instanceof tilos (fordítási hiba)!
+
+\subsection*{Wildcardok}
+Probléma: általános megoldást szerenténk, amely minden collectiont elfogad, függetlenül az azokban tárolt elemektõl (pl. ki szeretnénk õket írni), vagy nem tudjuk azok konkrét típusát (pl. legacy code). Collection<Object> \emph{nem} õse (ld. elõzõ bekezdés). Ha nem használunk generic-eket, megoldható, viszont warningot generál:
+
+\begin{verbatim}
+void print(Collection c) {
+    for (Object o : c) System.out.println(o);
+}
+\end{verbatim}
+
+A megoldás a wildcard használata: Collection<?> minden kollekcióra ráillik. Ilyenkor Objectként hivatkozhatunk az elemekre:
+
+\begin{verbatim}
+void print(Collection<?> c) {
+    for (Object o : c) System.out.println(o);
+}
+\end{verbatim}
+
+Vigyázat! A $? \neq Object$! Csak egy ismeretlen típust jelent. Így a következõ kódrészlet is fordítási hibához vezet:
+
+\begin{verbatim}
+List<?> c = ...;
+l.add(new Object()); // forditasi hiba
+\end{verbatim}
+
+Nem tudjuk, hogy mi van benne, lekérdezni viszont lehet (mert tudjuk, hogy minden objektum az Object leszármazottja).
+
+\subsection*{Bounded wildcard}
+Amikor tudjuk, hogy adott helyen csak adott osztály leszármazottai szerepelhetnek, elsõ (rossz) megközelítés:
+
+\begin{verbatim}
+abstract class Super {}
+class Sub1 extends Super {}
+class Sub2 extends Super {}
+...
+void func(List<Super> l) {...} // Rossz!
+\end{verbatim}
+
+Probléma: func() csak List<Super>-rel hívható meg, List<Sub1>, List<Sub2> nem lehet paramétere (nem altípus). Megoldás: bounded wildcard:
+
+\begin{verbatim}
+void func(List<? extends Super> l) {...}
+\end{verbatim}
+
+Belepakolni ugyanúgy nem tudunk, mint a ? esetén, azaz erre fordítási hibát kapunk:
+
+\begin{verbatim}
+void func(List<? extends Super> l) {
+    l.add(new Sub1()); // reccs
+}
+\end{verbatim}
+
+\subsection*{Generikus osztályok, függvények}
+Osztálydefinícióban bevezethetõ típusparaméter az osztályhoz, ez minden membernél használható. Példa:
+
+\begin{verbatim}
+package gyak6;
+
+public class Pair<T, S> {
+    private final T first;
+    private final S second;
+    
+    public Pair(final T first, final S second) {
+        super();
+        this.first = first;
+        this.second = second;
+    }
+    
+    public T getFirst() {
+        return first;
+    }
+    public S getSecond() {
+        return second;
+    }
+    
+    @Override
+    public String toString() {
+        return "(" + first + ", " + second + ")";
+    }
+}
+\end{verbatim}
+
+Generikus függvények esetén szintén a definícióban használható. Példa:
+
+\begin{verbatim}
+package gyak6;
+
+public class ArrayUtils {
+    public static final <T, S extends T>
+    boolean isIn(final T[] arr, final S element) {
+        for (final T t : arr) {
+            if (t.equals(element)) return true;
+        }
+        
+        return false;
+    }
+    
+    public static void main(final String[] args) {
+        final String[] sarr = {"a", "b", "c"};
+        System.out.println( isIn(sarr, "c") );
+    }
+}
+\end{verbatim}
+
+\textbf{Részletesen:} \url{http://java.sun.com/j2se/1.5/pdf/generics-tutorial.pdf}
+
+\section*{Feladatok}
+%\subsection*{Fájlbeolvasás}
+\subsection*{Generikus bináris keresõfa}
+Készítsünk egy egyszerû, általános bináris keresõfa implementációt! A fához lehessen elemet hozzáadni (add()), kiírni, valamint a minimum, maximum elemet megkeresni (min(), max()). A típusparaméterének összehasonlíthatónak kell lennie (< T extends Comparable<T> >).
+
+\subsection*{Hex editor}
+Készíts egy egyszerû hexadecimális szövegszerkesztõt! Egy sorban 16 karakter legyen, amely az egyes bájtok értékeit reprezentálják. A program kínáljon lehetõséget byte, int módosításra, adott pozíción, megadott értékkel. A szövegmezõn keresztüli szerkesztés legyen letiltva (\texttt{setEnabled(false)}). Ha megnyomják a modify gombot, akkor az adott értéket írjuk ki a file-ba (RandomAccessFile segítségével) a megadott pozícióra, és frissítsük a szövegmezõ tartalmát!
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{6}
+\caption{Képernyõterv}
+\end{figure}
+
+\end{document}

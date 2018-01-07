@@ -1,0 +1,247 @@
+This is pdfTeX, Version 3.1415926-1.40.9 (MiKTeX 2.7) (preloaded format=pdflatex 2010.2.11)  2 MAR 2010 08:09
+entering extended mode
+**4.tex
+(4.tex
+LaTeX2e <2005/12/01>
+Babel <v3.8l> and hyphenation patterns for english, dumylang, nohyphenation, ge
+rman, ngerman, german-x-2008-06-18, ngerman-x-2008-06-18, french, hungarian, lo
+aded.
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\article.cls"
+Document Class: article 2005/09/16 v1.4f Standard LaTeX document class
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\size11.clo"
+File: size11.clo 2005/09/16 v1.4f Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\inputenc.sty"
+Package: inputenc 2006/05/05 v1.1b Input encoding file
+\inpenc@prehook=\toks14
+\inpenc@posthook=\toks15
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\latin2.def"
+File: latin2.def 2006/05/05 v1.1b Input encoding file
+))
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\fontenc.sty"
+Package: fontenc 2005/09/27 v1.99g Standard LaTeX package
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\t1enc.def"
+File: t1enc.def 2005/09/27 v1.99g Standard LaTeX file
+LaTeX Font Info:    Redeclaring font encoding T1 on input line 43.
+))
+("C:\Program Files\MiKTeX 2.7\tex\generic\babel\babel.sty"
+Package: babel 2008/07/06 v3.8l The Babel package
+
+*************************************
+* Local config file bblopts.cfg used
+*
+("C:\Program Files\MiKTeX 2.7\tex\latex\00miktex\bblopts.cfg"
+File: bblopts.cfg 2006/07/31 v1.0 MiKTeX 'babel' configuration
+)
+("C:\Program Files\MiKTeX 2.7\tex\generic\babel\magyar.ldf"
+Language: magyar 2005/03/30 v1.4j Magyar support from the babel system
+
+("C:\Program Files\MiKTeX 2.7\tex\generic\babel\babel.def"
+File: babel.def 2008/07/06 v3.8l Babel common definitions
+\babel@savecnt=\count87
+\U@D=\dimen103
+)
+Package babel Info: Making ` an active character on input line 597.
+))
+("C:\Program Files\MiKTeX 2.7\tex\latex\ltxmisc\url.sty"
+\Urlmuskip=\muskip10
+Package: url 2006/04/12  ver 3.3  Verb mode for urls, etc.
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\tools\indentfirst.sty"
+Package: indentfirst 1995/11/23 v1.03 Indent first paragraph (DPC)
+) (4.aux)
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 13.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 13.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 13.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <10.95> on input line 19.
+LaTeX Font Info:    Try loading font information for T1+cmtt on input line 20.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\t1cmtt.fd"
+File: t1cmtt.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+Overfull \hbox (4.02478pt too wide) in paragraph at lines 26--27
+[]\T1/cmr/m/n/10.95 Inicializálásnál elég a { $\OML/cmm/m/it/10.95 elem[]$\T1/c
+mr/m/n/10.95 , $\OML/cmm/m/it/10.95 elem[]$\T1/cmr/m/n/10.95 , ... } forma.
+ []
+
+[1
+
+{C:/Documents and Settings/legendi/Local Settings/Application Data/MiKTeX/2.7/p
+dftex/config/pdftex.map}]
+Overfull \hbox (86.09451pt too wide) in paragraph at lines 79--79
+ []    \T1/cmtt/m/n/10.95 void f(int a, int b) {}; // Hibas: visszateresi ertek
+ nem kompatibilis[] 
+ []
+
+
+Overfull \hbox (86.09451pt too wide) in paragraph at lines 79--79
+ []    \T1/cmtt/m/n/10.95 int f(int a) { return f(a, 0); }    // Tulterheles (p
+arameterek szama)[] 
+ []
+
+
+Overfull \hbox (91.75288pt too wide) in paragraph at lines 79--79
+ []    \T1/cmtt/m/n/10.95 int f(Integer a, Integer b) { ... } // Tulterheles (p
+arameterek tipusa)[] 
+ []
+
+
+Overfull \hbox (23.85243pt too wide) in paragraph at lines 79--79
+ []    \T1/cmtt/m/n/10.95 int g() { return 0; }     // OK: Exception lista nem 
+szamit[] 
+ []
+
+
+Overfull \hbox (57.80266pt too wide) in paragraph at lines 79--79
+ []    \T1/cmtt/m/n/10.95 B   h() { return null; }; // OK: Visszateresi ertekre
+ specializal[] 
+ []
+
+
+Overfull \hbox (2.33368pt too wide) in paragraph at lines 97--98
+[]\T1/cmr/m/n/10.95 Új kons-tans be-szú-rása prob-lé-más, azo-nos ér-té-kek (co
+py-paste) 
+ []
+
+[2]
+Overfull \hbox (19.11086pt too wide) in paragraph at lines 131--131
+[]            \T1/cmtt/m/n/10.95 System.out.println(act.ordinal() + " ->" + act
+.name());[] 
+ []
+
+[3]
+Overfull \hbox (3.07025pt too wide) in paragraph at lines 172--174
+\T1/cmr/bx/n/10.95 Részletesen: $\T1/cmtt/m/n/10.95 http : / / java . sun . com
+ / docs / books / tutorial / java / javaOO /
+ []
+
+[4]
+Overfull \hbox (19.11086pt too wide) in paragraph at lines 201--201
+[]    \T1/cmtt/m/n/10.95 // Ha adattagot veszunk fel, az normal esetben csak it
+t lathato[] 
+ []
+
+
+Overfull \hbox (2.13574pt too wide) in paragraph at lines 207--209
+\T1/cmtt/m/n/10.95 http : / / java . sun . com / docs / books / tutorial / ui /
+ features / compWin . html$ 
+ []
+
+[5]
+Overfull \hbox (23.85243pt too wide) in paragraph at lines 280--280
+ []            \T1/cmtt/m/n/10.95 public void actionPerformed(final ActionEvent
+ ae) {[] 
+ []
+
+
+Overfull \hbox (74.77777pt too wide) in paragraph at lines 280--280
+ []                    \T1/cmtt/m/n/10.95 final int N = Integer.parseInt(textFi
+eld.getText());[] 
+ []
+
+[6]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 299.
+
+ ("C:\Program Files\MiKTeX 2.7\tex\latex\base\omscmr.fd"
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 299.
+ [7]
+Overfull \hbox (33.56973pt too wide) in paragraph at lines 335--336
+[]\T1/cmr/bx/n/10.95 Részletesen $\T1/cmtt/m/n/10.95 http : / / java . sun . co
+m / docs / books / tutorial / uiswing / layout /
+ []
+
+
+Overfull \hbox (4.56535pt too wide) in paragraph at lines 349--350
+\T1/cmr/m/n/10.95 (app-let, frame vagy dia-log). Min-den gra-fi-kus osz-tály kö
+-zös ®se: (J)Component.
+ []
+
+[8]
+Overfull \hbox (41.74434pt too wide) in paragraph at lines 395--395
+[]\T1/cmtt/m/n/10.95 JOptionPane.showMessageDialog(null, // ki az ose, ha van, 
+akkor modalis[] 
+ []
+
+
+Overfull \hbox (6.87732pt too wide) in paragraph at lines 407--408
+[]$\T1/cmtt/m/n/10.95 http : / / java . sun . com / javase / technologies / des
+ktop / articles . jsp$ 
+ []
+
+[9]
+Overfull \hbox (87.0113pt too wide) in paragraph at lines 417--417
+[]\T1/cmtt/m/n/10.95 csop<csoportszám>_gyak<gyakorlat száma>_<EHA-kód>_<a megol
+dott feladatok száma>[] 
+ []
+
+
+Overfull \hbox (74.31638pt too wide) in paragraph at lines 438--439
+[]\T1/cmr/m/n/10.95 Használj to-ol-ti-pe-ket, amik-ben HTML for-má-zott szö-veg
+ van (\T1/cmtt/m/n/10.95 setToolTipText("<html>
+ []
+
+[10] [11] (4.aux) ) 
+Here is how much of TeX's memory you used:
+ 990 strings out of 95280
+ 10454 string characters out of 1182536
+ 64637 words of memory out of 1500000
+ 4239 multiletter control sequences out of 110000
+ 13698 words of font info for 35 fonts, out of 3000000 for 5000
+ 14 hyphenation exceptions out of 8191
+ 24i,6n,24p,595b,298s stack positions out of 5000i,500n,10000p,200000b,50000s
+ <C:\Documents and Settings\legendi\Local Settings\Applicati
+on Data\MiKTeX\2.7\fonts\pk\ljfour\jknappen\ec\dpi600\ecbx1200.pk> <C:\Document
+s and Settings\legendi\Local Settings\Application Data\MiKTeX\2.7\fonts\pk\ljfo
+ur\jknappen\ec\dpi600\ecti1095.pk> <C:\Documents and Settings\legendi\Local Set
+tings\Application Data\MiKTeX\2.7\fonts\pk\ljfour\jknappen\ec\dpi600\ectt1095.p
+k> <C:\Documents and Settings\legendi\Local Settings\Application Data\MiKTeX\2.
+7\fonts\pk\ljfour\jknappen\ec\dpi600\ecrm1095.pk> <C:\Documents and Settings\le
+gendi\Local Settings\Application Data\MiKTeX\2.7\fonts\pk\ljfour\jknappen\ec\dp
+i600\ecbx1095.pk> <C:\Documents and Settings\legendi\Local Settings\Application
+ Data\MiKTeX\2.7\fonts\pk\ljfour\jknappen\ec\dpi600\ecbx1440.pk> <C:\Documents 
+and Settings\legendi\Local Settings\Application Data\MiKTeX\2.7\fonts\pk\ljfour
+\jknappen\ec\dpi600\ecrm1200.pk> <C:\Documents and Settings\legendi\Local Setti
+ngs\Application Data\MiKTeX\2.7\fonts\pk\ljfour\jknappen\ec\dpi600\ecrm1728.pk>
+<C:/Program Files/MiKTeX 2.7/fonts/type1/bluesky/cm/cmmi10.pfb><C:/Program File
+s/MiKTeX 2.7/fonts/type1/bluesky/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.7/font
+s/type1/bluesky/cm/cmr8.pfb><C:/Program Files/MiKTeX 2.7/fonts/type1/bluesky/cm
+/cmsy10.pfb>
+Output written on 4.pdf (11 pages, 146600 bytes).
+PDF statistics:
+ 420 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 131072)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+
